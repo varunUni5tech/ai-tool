@@ -288,88 +288,49 @@ export const App: React.FC = () => {
         </div>
       </header>
 
-      {/* AI Prompt Generator & Preset Simulator Chips Header */}
-      <section className="bg-slate-900/60 border-b border-slate-800/80 px-6 py-3.5 backdrop-blur-xl">
+      {/* AI Prompt Generator Textarea Section */}
+      <section className="bg-slate-900/60 border-b border-slate-800/80 px-6 py-4 backdrop-blur-xl">
         <div className="max-w-[1900px] w-full mx-auto flex flex-col gap-3">
-          {/* AI Prompt Bar */}
-          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
-            <div className="flex items-center space-x-2 text-xs font-mono text-cyan-400 font-semibold shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 text-xs font-mono text-cyan-400 font-semibold">
               <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
-              <span>AI Prompt Orchestrator:</span>
+              <span>Enter Natural Language Physics Prompt:</span>
             </div>
+            <span className="text-[11px] font-mono text-slate-400">
+              Type any simulation description below & click Generate Spec
+            </span>
+          </div>
 
-            <div className="flex-1 flex items-center bg-slate-950/90 rounded-xl border border-slate-800 focus-within:border-cyan-500/80 focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all px-3 py-1 shadow-inner">
-              <input
-                type="text"
+          <div className="flex flex-col md:flex-row items-stretch gap-3">
+            <div className="flex-1 relative bg-slate-950/90 rounded-xl border border-slate-800 focus-within:border-cyan-500/80 focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all p-3 shadow-inner">
+              <textarea
+                rows={3}
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder="Type physics experiment prompt e.g., 'Show prism dispersion apex 60 deg incident 30 deg'..."
-                className="flex-1 bg-transparent border-none text-xs text-slate-100 focus:outline-none py-1.5 font-sans placeholder:text-slate-500"
-                onKeyDown={(e) => e.key === 'Enter' && handleGenerateAiPrompt()}
+                placeholder="Type your physics or math simulation requirement here... (e.g. 'Show prism dispersion with apex angle 50 and incident angle 40', 'Simulate projectile motion at 30 m/s and 45 degrees angle', or 'Plot cos(x) from 0 to 2pi')"
+                className="w-full bg-transparent border-none text-xs text-slate-100 focus:outline-none font-sans placeholder:text-slate-500 resize-none leading-relaxed"
               />
-              <button
-                onClick={handleGenerateAiPrompt}
-                disabled={isGeneratingAi}
-                className="flex items-center space-x-2 px-4 py-1.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:opacity-50 rounded-lg shadow-lg shadow-cyan-500/20 transition-all active:scale-95 shrink-0 cursor-pointer"
-              >
-                {isGeneratingAi ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Generating Spec...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Generate Spec via Python AI</span>
-                  </>
-                )}
-              </button>
             </div>
 
-            {/* Presets Selector Buttons */}
-            <div className="flex items-center space-x-2 shrink-0 overflow-x-auto pb-1 md:pb-0">
-              <button
-                onClick={() => handleSelectPreset('prism_dispersion')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  selectedPreset === 'prism_dispersion'
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold shadow-lg shadow-cyan-500/30'
-                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 border border-slate-700/60'
-                }`}
-              >
-                🌈 Rainbow Dispersion
-              </button>
-              <button
-                onClick={() => handleSelectPreset('optical_prism')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  selectedPreset === 'optical_prism'
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold shadow-lg shadow-cyan-500/30'
-                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 border border-slate-700/60'
-                }`}
-              >
-                📐 Prism Refraction
-              </button>
-              <button
-                onClick={() => handleSelectPreset('projectile_motion')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  selectedPreset === 'projectile_motion'
-                    ? 'bg-gradient-to-r from-pink-500 to-rose-600 text-slate-950 font-bold shadow-lg shadow-pink-500/30'
-                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 border border-slate-700/60'
-                }`}
-              >
-                🚀 Projectile Motion
-              </button>
-              <button
-                onClick={() => handleSelectPreset('function_plot')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  selectedPreset === 'function_plot'
-                    ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-slate-950 font-bold shadow-lg shadow-purple-500/30'
-                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 border border-slate-700/60'
-                }`}
-              >
-                📈 Function Plot
-              </button>
-            </div>
+            <button
+              onClick={handleGenerateAiPrompt}
+              disabled={isGeneratingAi}
+              className="flex items-center justify-center space-x-2 px-6 py-4 text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:opacity-50 rounded-xl shadow-lg shadow-cyan-500/20 transition-all active:scale-95 shrink-0 cursor-pointer md:w-56"
+            >
+              {isGeneratingAi ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Generating Spec...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>Generate Spec via Python AI</span>
+                </>
+              )}
+            </button>
           </div>
+        </div>
 
           {/* Quick Prompt Suggestions */}
           <div className="flex flex-wrap items-center space-x-2 text-[11px] text-slate-400 font-mono">
