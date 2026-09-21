@@ -209,20 +209,25 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
           <mesh geometry={prismGeometry} position={[0, 0, 0]}>
             <meshPhysicalMaterial
               transparent
-              opacity={0.55}
-              transmission={0.92}
+              opacity={0.35}
+              transmission={0.96}
               ior={1.5}
-              roughness={0.08}
+              roughness={0.03}
               metalness={0.0}
-              color="#e0f2fe"
+              color="#38bdf8"
               reflectivity={0.9}
               clearcoat={1.0}
             />
           </mesh>
 
+          {/* Glass Wireframe edges for clear 3D structure */}
+          <mesh geometry={prismGeometry} position={[0, 0, 0]}>
+            <meshBasicMaterial color="#38bdf8" wireframe transparent opacity={0.3} />
+          </mesh>
+
           {/* Prism Apex Angle Label */}
           {displayOptions.showLabels && (
-            <Html position={[0, 1.9, 0]}>
+            <Html position={[0, prism.height / 2.0 + 0.4, 0]}>
               <div className="px-2 py-1 bg-slate-950/90 text-cyan-400 text-[11px] font-mono font-bold rounded-md border border-cyan-800 shadow-xl backdrop-blur-md">
                 Prism Apex A = {prism.apexAngleDeg}°
               </div>
@@ -258,9 +263,9 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
 
           {/* Incident Beam Label */}
           {displayOptions.showLabels && (
-            <Html position={[incidentRay.origin.x - 0.5, incidentRay.origin.y + 0.3, 0]}>
-              <div className="px-2 py-0.5 bg-slate-900/90 text-white text-[10px] font-mono font-semibold rounded border border-slate-700 shadow-md">
-                White Light Beam (i₁={incidentRay.incidentAngleDeg}°)
+            <Html position={[incidentRay.origin.x, incidentRay.origin.y + 0.4, 0]}>
+              <div className="px-2 py-1 bg-slate-900/90 text-white text-[10px] font-mono font-semibold rounded border border-slate-700 shadow-md whitespace-nowrap">
+                White Light Beam (i₁ = {incidentRay.incidentAngleDeg ?? 30}°)
               </div>
             </Html>
           )}
