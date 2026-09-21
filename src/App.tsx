@@ -346,7 +346,6 @@ export const App: React.FC = () => {
               </button>
             ))}
           </div>
-        </div>
 
         {/* API Notification Banner */}
         {apiStatusMessage && (
