@@ -198,15 +198,19 @@ export const App: React.FC = () => {
   const handleRender = async () => {
     try {
       const parsed = JSON.parse(jsonText);
+      setValidationError(null);
+
       if (usePythonBackend && isPythonConnected) {
         setApiStatusMessage('Executing simulation on Python FastAPI backend...');
-        await ApiService.runSimulationOnPythonBackend(parsed);
-        setApiStatusMessage('Python FastAPI execution successful!');
+        const pythonResult = await ApiService.runSimulationOnPythonBackend(parsed);
+        setSimResult(pythonResult);
+        setApiStatusMessage('✨ Execution successful via Python SymPy/SciPy Backend!');
         setTimeout(() => setApiStatusMessage(null), 3000);
+      } else {
+        loadSimulation(parsed);
       }
-      loadSimulation(parsed);
-    } catch (e) {
-      //
+    } catch (e: any) {
+      setValidationError(`Execution Error: ${e.message}`);
     }
   };
 
