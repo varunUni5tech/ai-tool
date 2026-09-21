@@ -234,155 +234,151 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-white">
-      {/* Top Navbar */}
-      <header className="h-14 border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50 flex items-center justify-between px-6">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-white">
+      {/* Premium Glassmorphic Navigation Bar */}
+      <header className="h-16 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-2xl sticky top-0 z-50 flex items-center justify-between px-6 shadow-2xl">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-gradient-to-tr from-cyan-600 to-blue-600 rounded-lg shadow-md shadow-cyan-500/20">
+          <div className="p-2.5 bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 rounded-xl shadow-lg shadow-cyan-500/20 ring-1 ring-cyan-400/30">
             <Atom className="w-5 h-5 text-white animate-spin-slow" />
           </div>
           <div>
-            <h1 className="text-sm font-bold tracking-tight text-white flex items-center space-x-2">
-              <span>AI Physics 3D Simulation Playground</span>
-              <span className="px-2 py-0.5 text-[10px] font-mono bg-cyan-950 text-cyan-400 border border-cyan-800/60 rounded">
-                v1.0 (WebGL + Python API)
+            <h1 className="text-base font-extrabold tracking-tight text-white flex items-center space-x-2">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-100 to-cyan-400">
+                Quantum Optics & Motion Lab
+              </span>
+              <span className="px-2 py-0.5 text-[10px] font-mono bg-cyan-950/80 text-cyan-400 border border-cyan-700/60 rounded-full shadow-inner">
+                3D WebGL Engine
               </span>
             </h1>
             <p className="text-[11px] text-slate-400 font-mono">
-              AI Spec Generator • Optics & Kinematics Engine • Three.js 3D Viewport
+              SymPy Optics Math • SciPy ODE Solver • Three.js Spectral Renderer
             </p>
           </div>
         </div>
 
-        {/* Python API Health Status & Mode Switch */}
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-xs font-mono">
-            <Server className="w-3.5 h-3.5 text-slate-400" />
+        {/* Python API Health Status & Mode Toggle */}
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 bg-slate-900/90 px-3.5 py-1.5 rounded-xl border border-slate-800 text-xs font-mono shadow-inner">
+            <Server className="w-3.5 h-3.5 text-cyan-400" />
             <span className="text-slate-400">Python API:</span>
             {isPythonConnected ? (
               <span className="flex items-center space-x-1 text-emerald-400 font-semibold">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Connected (localhost:8000)</span>
+                <span>Connected</span>
               </span>
             ) : (
               <span className="flex items-center space-x-1 text-amber-400">
                 <XCircle className="w-3.5 h-3.5" />
-                <span>Offline (Client Engine Active)</span>
+                <span>Client Engine</span>
               </span>
             )}
           </div>
 
           <button
             onClick={() => setUsePythonBackend(!usePythonBackend)}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+            className={`flex items-center space-x-2 px-3.5 py-1.5 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
               usePythonBackend && isPythonConnected
-                ? 'bg-cyan-950 text-cyan-300 border-cyan-700/60 shadow-md'
-                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
+                ? 'bg-gradient-to-r from-cyan-950 to-blue-950 text-cyan-300 border-cyan-600/60 shadow-lg shadow-cyan-950/50'
+                : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700'
             }`}
           >
             <Zap className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Mode: {usePythonBackend && isPythonConnected ? 'Python API' : 'Client TS Engine'}</span>
+            <span>Mode: {usePythonBackend && isPythonConnected ? 'Python FastAPI' : 'Client JS Engine'}</span>
           </button>
         </div>
       </header>
 
-      {/* Preset Spec Testcases Bar & AI Prompt Bar */}
-      <section className="bg-slate-900/90 border-b border-slate-800 p-4 px-6 backdrop-blur-md flex flex-col space-y-3">
-        {/* Testcase Presets Bar */}
-        <div className="max-w-[1800px] w-full mx-auto flex items-center space-x-3 text-xs">
-          <div className="flex items-center space-x-1.5 text-slate-400 font-mono font-semibold shrink-0">
-            <BookOpen className="w-4 h-4 text-amber-400" />
-            <span>Physics Testcases:</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => handleSelectPreset('prism_dispersion')}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                selectedPreset === 'prism_dispersion'
-                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-md'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-              }`}
-            >
-              🌈 Prism Rainbow Dispersion (Optics)
-            </button>
-            <button
-              onClick={() => handleSelectPreset('optical_prism')}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                selectedPreset === 'optical_prism'
-                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-md'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-              }`}
-            >
-              📐 Single Ray Refraction (Optics)
-            </button>
-            <button
-              onClick={() => handleSelectPreset('projectile_motion')}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                selectedPreset === 'projectile_motion'
-                  ? 'bg-pink-500 text-slate-950 font-bold shadow-md'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-              }`}
-            >
-              🚀 Projectile Motion (Mechanics)
-            </button>
-            <button
-              onClick={() => handleSelectPreset('function_plot')}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                selectedPreset === 'function_plot'
-                  ? 'bg-purple-500 text-slate-950 font-bold shadow-md'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-              }`}
-            >
-              📈 Math Function Curve (Mathematics)
-            </button>
-          </div>
-        </div>
+      {/* AI Prompt Generator & Preset Simulator Chips Header */}
+      <section className="bg-slate-900/60 border-b border-slate-800/80 px-6 py-3.5 backdrop-blur-xl">
+        <div className="max-w-[1900px] w-full mx-auto flex flex-col gap-3">
+          {/* AI Prompt Bar */}
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+            <div className="flex items-center space-x-2 text-xs font-mono text-cyan-400 font-semibold shrink-0">
+              <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
+              <span>AI Prompt Orchestrator:</span>
+            </div>
 
-        {/* AI Prompt Input Bar */}
-        <div className="max-w-[1800px] w-full mx-auto flex flex-col md:flex-row items-stretch md:items-center gap-3">
-          <div className="flex items-center space-x-2 text-xs font-mono text-cyan-400 font-semibold shrink-0">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
-            <span>AI Prompt Generator:</span>
-          </div>
+            <div className="flex-1 flex items-center bg-slate-950/90 rounded-xl border border-slate-800 focus-within:border-cyan-500/80 focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all px-3 py-1 shadow-inner">
+              <input
+                type="text"
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder="Type physics experiment prompt e.g., 'Show prism dispersion apex 60 deg incident 30 deg'..."
+                className="flex-1 bg-transparent border-none text-xs text-slate-100 focus:outline-none py-1.5 font-sans placeholder:text-slate-500"
+                onKeyDown={(e) => e.key === 'Enter' && handleGenerateAiPrompt()}
+              />
+              <button
+                onClick={handleGenerateAiPrompt}
+                disabled={isGeneratingAi}
+                className="flex items-center space-x-2 px-4 py-1.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:opacity-50 rounded-lg shadow-lg shadow-cyan-500/20 transition-all active:scale-95 shrink-0 cursor-pointer"
+              >
+                {isGeneratingAi ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Generating Spec...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Generate Spec via Python AI</span>
+                  </>
+                )}
+              </button>
+            </div>
 
-          <div className="flex-1 flex items-center bg-slate-950 rounded-xl border border-slate-800 focus-within:border-cyan-500/80 transition-all px-3 py-1">
-            <input
-              type="text"
-              value={aiPrompt}
-              onChange={(e) => setAiPrompt(e.target.value)}
-              placeholder="Describe simulation e.g. 'Show projectile motion 25 m/s at 35 deg' or 'Show prism dispersion with apex angle 50'"
-              className="flex-1 bg-transparent border-none text-xs text-slate-100 focus:outline-none py-1.5 font-sans placeholder:text-slate-500"
-              onKeyDown={(e) => e.key === 'Enter' && handleGenerateAiPrompt()}
-            />
-            <button
-              onClick={handleGenerateAiPrompt}
-              disabled={isGeneratingAi}
-              className="flex items-center space-x-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-blue-400 hover:from-cyan-300 hover:to-blue-300 disabled:opacity-50 rounded-lg shadow-md transition-all active:scale-95 shrink-0 cursor-pointer"
-            >
-              {isGeneratingAi ? (
-                <>
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>Generating Spec...</span>
-                </>
-              ) : (
-                <>
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Generate Spec via Python AI</span>
-                </>
-              )}
-            </button>
+            {/* Presets Selector Buttons */}
+            <div className="flex items-center space-x-2 shrink-0 overflow-x-auto pb-1 md:pb-0">
+              <button
+                onClick={() => handleSelectPreset('prism_dispersion')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  selectedPreset === 'prism_dispersion'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold shadow-lg shadow-cyan-500/30'
+                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 border border-slate-700/60'
+                }`}
+              >
+                🌈 Rainbow Dispersion
+              </button>
+              <button
+                onClick={() => handleSelectPreset('optical_prism')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  selectedPreset === 'optical_prism'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold shadow-lg shadow-cyan-500/30'
+                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 border border-slate-700/60'
+                }`}
+              >
+                📐 Prism Refraction
+              </button>
+              <button
+                onClick={() => handleSelectPreset('projectile_motion')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  selectedPreset === 'projectile_motion'
+                    ? 'bg-gradient-to-r from-pink-500 to-rose-600 text-slate-950 font-bold shadow-lg shadow-pink-500/30'
+                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 border border-slate-700/60'
+                }`}
+              >
+                🚀 Projectile Motion
+              </button>
+              <button
+                onClick={() => handleSelectPreset('function_plot')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  selectedPreset === 'function_plot'
+                    ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-slate-950 font-bold shadow-lg shadow-purple-500/30'
+                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 border border-slate-700/60'
+                }`}
+              >
+                📈 Function Plot
+              </button>
+            </div>
           </div>
 
-          {/* Quick Suggestions */}
-          <div className="hidden xl:flex items-center space-x-2 text-[11px] text-slate-400 font-mono">
-            <span className="shrink-0">Try:</span>
+          {/* Quick Prompt Suggestions */}
+          <div className="flex flex-wrap items-center space-x-2 text-[11px] text-slate-400 font-mono">
+            <span className="shrink-0 text-amber-400 font-semibold">Try Prompts:</span>
             {PROMPT_SUGGESTIONS.map((sug, idx) => (
               <button
                 key={idx}
-                onClick={() => {
-                  setAiPrompt(sug);
-                }}
-                className="px-2 py-1 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded border border-slate-800 transition-all truncate max-w-[200px]"
+                onClick={() => setAiPrompt(sug)}
+                className="px-2.5 py-0.5 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 hover:border-cyan-700/50 transition-all cursor-pointer truncate max-w-[220px]"
                 title={sug}
               >
                 {sug}
@@ -391,21 +387,20 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* API Status Banner */}
+        {/* API Notification Banner */}
         {apiStatusMessage && (
-          <div className="max-w-[1800px] mx-auto mt-1 text-xs font-mono text-cyan-300 bg-cyan-950/40 p-2 rounded-lg border border-cyan-800/40 flex items-center space-x-2 animate-pulse">
+          <div className="max-w-[1900px] mx-auto mt-2 text-xs font-mono text-cyan-300 bg-cyan-950/60 p-2 rounded-xl border border-cyan-700/50 flex items-center space-x-2 animate-pulse shadow-lg">
             <Zap className="w-3.5 h-3.5 text-cyan-400" />
             <span>{apiStatusMessage}</span>
           </div>
         )}
       </section>
 
-      {/* Main Content Layout */}
-      <main className="flex-1 p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1800px] w-full mx-auto">
-        {/* Left Column: JSON Editor & Controls */}
-        <div className="lg:col-span-5 flex flex-col space-y-4 h-full">
-          {/* JSON Spec Editor */}
-          <div className="flex-1 min-h-[420px]">
+      {/* Main Workspace Layout */}
+      <main className="flex-1 p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1900px] w-full mx-auto">
+        {/* Left Column: Monaco JSON Spec Editor & Physics Controls */}
+        <div className="lg:col-span-5 flex flex-col space-y-4">
+          <div className="h-[480px]">
             <JsonEditor
               value={jsonText}
               onChange={(val) => {
@@ -414,7 +409,7 @@ export const App: React.FC = () => {
                   const parsed = JSON.parse(val);
                   loadSimulation(parsed);
                 } catch (e) {
-                  // Wait for user manual render if typing
+                  // Wait for manual trigger
                 }
               }}
               onRender={handleRender}
@@ -424,7 +419,6 @@ export const App: React.FC = () => {
             />
           </div>
 
-          {/* Simulation Controls */}
           <SimulationControls
             isPlaying={isPlaying}
             onPlayPause={() => setIsPlaying(!isPlaying)}
@@ -437,10 +431,10 @@ export const App: React.FC = () => {
           />
         </div>
 
-        {/* Right Column: 3D Visualization Viewport & Results Panel */}
+        {/* Right Column: 3D WebGL Canvas & Output Results Panels */}
         <div className="lg:col-span-7 flex flex-col space-y-4">
-          {/* 3D Viewport */}
-          <div className="h-[480px] lg:h-[520px]">
+          {/* Main 3D Viewport */}
+          <div className="h-[520px] rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
             <SimulationViewer
               result={simResult}
               displayOptions={displayOptions}
@@ -451,17 +445,17 @@ export const App: React.FC = () => {
             />
           </div>
 
-          {/* Parameters Panel */}
+          {/* Physics Parameters Card */}
           <ParameterPanel result={simResult} />
 
-          {/* Results Panel */}
+          {/* Computed Physics Calculations Summary */}
           <ResultsPanel result={simResult} />
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-3 px-6 text-center text-xs text-slate-500 font-mono">
-        AI Physics & Mathematics 3D Simulation Engine • FastAPI Backend Connected @ http://localhost:8000
+      <footer className="border-t border-slate-800/60 bg-slate-950 py-3.5 px-6 text-center text-xs text-slate-500 font-mono">
+        AI Mathematical & Physics 3D Simulation Platform • FastAPI Server Running @ http://localhost:8000
       </footer>
     </div>
   );
