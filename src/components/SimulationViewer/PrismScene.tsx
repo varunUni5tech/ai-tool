@@ -83,10 +83,10 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
   return (
     <>
       {/* Lighting */}
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[10, 15, 10]} intensity={1.2} castShadow />
-      <directionalLight position={[-10, -10, -5]} intensity={0.4} />
-      <pointLight position={[0, 5, 0]} intensity={0.8} color="#e6f2ff" />
+      <ambientLight intensity={0.7} />
+      <directionalLight position={[10, 15, 10]} intensity={1.3} castShadow />
+      <directionalLight position={[-10, -10, -5]} intensity={0.5} />
+      <pointLight position={[0, 5, 0]} intensity={1.0} color="#e6f2ff" />
 
       {/* Camera Controls */}
       <OrbitControls
@@ -105,7 +105,7 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
           args={[20, 20]}
           cellSize={1}
           cellThickness={1}
-          cellColor="#334155"
+          cellColor="#1e293b"
           sectionSize={5}
           sectionThickness={1.5}
           sectionColor="#0284c7"
@@ -113,16 +113,65 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
         />
       )}
 
-      {/* XYZ Coordinate Axes */}
-      {displayOptions.showAxes && <axesHelper args={[4]} position={[0, 0.01, 0]} />}
+      {/* Enhanced Custom Labeled 3D Axes System */}
+      {displayOptions.showAxes && (
+        <group key="custom-axes-system" position={[0, 0, 0]}>
+          {/* X Axis - Red */}
+          <Line points={[[-6, 0, 0], [6, 0, 0]]} color="#ef4444" lineWidth={3} />
+          <Html position={[6.3, 0, 0]}>
+            <span className="px-1.5 py-0.5 bg-red-950/80 text-red-400 text-[11px] font-mono font-bold rounded border border-red-800">
+              +X
+            </span>
+          </Html>
+
+          {/* Y Axis - Green */}
+          <Line points={[[0, -4, 0], [0, 6, 0]]} color="#22c55e" lineWidth={3} />
+          <Html position={[0, 6.3, 0]}>
+            <span className="px-1.5 py-0.5 bg-emerald-950/80 text-emerald-400 text-[11px] font-mono font-bold rounded border border-emerald-800">
+              +Y
+            </span>
+          </Html>
+
+          {/* Z Axis - Blue */}
+          <Line points={[[0, 0, -4], [0, 0, 4]]} color="#3b82f6" lineWidth={3} />
+          <Html position={[0, 0, 4.3]}>
+            <span className="px-1.5 py-0.5 bg-blue-950/80 text-blue-400 text-[11px] font-mono font-bold rounded border border-blue-800">
+              +Z
+            </span>
+          </Html>
+
+          {/* Origin Badge */}
+          <mesh position={[0, 0, 0]}>
+            <sphereGeometry args={[0.08, 16, 16]} />
+            <meshBasicMaterial color="#f59e0b" />
+          </mesh>
+          <Html position={[0.2, -0.3, 0]}>
+            <span className="text-[9px] font-mono text-amber-400/90 font-semibold bg-slate-950/80 px-1 py-0.5 rounded border border-amber-900/50">
+              (0,0,0)
+            </span>
+          </Html>
+
+          {/* Math Axis Baseline for Function Plot */}
+          {simulation_type === 'function_plot' && (
+            <group key="function-axis-markers">
+              <Line points={[[-6, 0, 0], [6, 0, 0]]} color="#a855f7" lineWidth={2} dashed dashScale={2} />
+              <Html position={[-6.2, 0.4, 0]}>
+                <span className="px-2 py-0.5 bg-purple-950/90 text-purple-300 text-[10px] font-mono font-bold rounded border border-purple-800 shadow-lg">
+                  Baseline y = 0
+                </span>
+              </Html>
+            </group>
+          )}
+        </group>
+      )}
 
       {/* Render 3D Trajectory Curve for Projectile & Function Plot */}
       {trajectoryPoints && visibleTrajectoryPoints.length >= 2 && (
         <group key={`trajectory-${simulation_type}-${animProgress}`}>
           <Line
             points={visibleTrajectoryPoints}
-            color={simulation_type === 'projectile_motion' ? '#e377c2' : '#a855f7'}
-            lineWidth={5}
+            color={simulation_type === 'projectile_motion' ? '#ec4899' : '#c084fc'}
+            lineWidth={6}
           />
 
           {/* Projectile Sphere */}
@@ -130,22 +179,23 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
             <mesh position={projectileHead}>
               <sphereGeometry args={[0.3, 16, 16]} />
               <meshStandardMaterial
-                color={simulation_type === 'projectile_motion' ? '#ff79c6' : '#c084fc'}
-                emissive={simulation_type === 'projectile_motion' ? '#ff79c6' : '#c084fc'}
-                emissiveIntensity={0.6}
+                color={simulation_type === 'projectile_motion' ? '#f472b6' : '#d8b4fe'}
+                emissive={simulation_type === 'projectile_motion' ? '#ec4899' : '#c084fc'}
+                emissiveIntensity={0.8}
               />
             </mesh>
           )}
 
-          {/* 3D Label */}
+          {/* Enhanced 3D Tooltip Label */}
           {displayOptions.showLabels && projectileHead && (
-            <Html position={[projectileHead[0], projectileHead[1] + 0.5, projectileHead[2]]}>
-              <div className="flex items-center space-x-1.5 px-2 py-1 bg-slate-950/90 text-[10px] font-mono rounded border border-slate-700 shadow-xl backdrop-blur-md whitespace-nowrap">
+            <Html position={[projectileHead[0], projectileHead[1] + 0.6, projectileHead[2]]}>
+              <div className="flex items-center space-x-2 px-2.5 py-1.5 bg-slate-950/95 text-xs font-mono rounded-lg border border-pink-500/40 shadow-2xl backdrop-blur-md whitespace-nowrap">
+                <div className="w-2 h-2 rounded-full bg-pink-500 animate-ping" />
                 <span className="font-bold text-pink-400">
-                  {simulation_type === 'projectile_motion' ? 'Projectile Pos' : 'Function y(x)'}
+                  {simulation_type === 'projectile_motion' ? 'Projectile Pos' : 'Curve y(x)'}
                 </span>
                 <span className="text-cyan-300">
-                  ({projectileHead[0].toFixed(1)}, {projectileHead[1].toFixed(1)})
+                  X={projectileHead[0].toFixed(2)}, Y={projectileHead[1].toFixed(2)}
                 </span>
               </div>
             </Html>
@@ -155,19 +205,30 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
 
       {/* 3D Glass Triangular Prism Mesh */}
       {prism && prismGeometry && (
-        <mesh key={`prism-${prism.apexAngleDeg}`} geometry={prismGeometry} position={[0, 0, 0]}>
-          <meshPhysicalMaterial
-            transparent
-            opacity={0.5}
-            transmission={0.9}
-            ior={1.5}
-            roughness={0.1}
-            metalness={0.0}
-            color="#d0e8ff"
-            reflectivity={0.9}
-            clearcoat={1.0}
-          />
-        </mesh>
+        <group key={`prism-group-${prism.apexAngleDeg}`}>
+          <mesh geometry={prismGeometry} position={[0, 0, 0]}>
+            <meshPhysicalMaterial
+              transparent
+              opacity={0.55}
+              transmission={0.92}
+              ior={1.5}
+              roughness={0.08}
+              metalness={0.0}
+              color="#e0f2fe"
+              reflectivity={0.9}
+              clearcoat={1.0}
+            />
+          </mesh>
+
+          {/* Prism Apex Angle Label */}
+          {displayOptions.showLabels && (
+            <Html position={[0, 1.9, 0]}>
+              <div className="px-2 py-1 bg-slate-950/90 text-cyan-400 text-[11px] font-mono font-bold rounded-md border border-cyan-800 shadow-xl backdrop-blur-md">
+                Prism Apex A = {prism.apexAngleDeg}°
+              </div>
+            </Html>
+          )}
+        </group>
       )}
 
       {/* Incident White Light Beam */}
@@ -194,6 +255,15 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
               />
             );
           })}
+
+          {/* Incident Beam Label */}
+          {displayOptions.showLabels && (
+            <Html position={[incidentRay.origin.x - 0.5, incidentRay.origin.y + 0.3, 0]}>
+              <div className="px-2 py-0.5 bg-slate-900/90 text-white text-[10px] font-mono font-semibold rounded border border-slate-700 shadow-md">
+                White Light Beam (i₁={incidentRay.incidentAngleDeg}°)
+              </div>
+            </Html>
+          )}
         </group>
       )}
 
@@ -226,7 +296,7 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
                         [p2ZAnimated.x, p2ZAnimated.y, p2ZAnimated.z],
                       ]}
                       color={ray.color}
-                      linewidth={3}
+                      lineWidth={3}
                     />
                   )}
 
@@ -263,3 +333,4 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
     </>
   );
 };
+
