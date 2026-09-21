@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SimulationSpec",
+  "type": "object",
+  "required": [
+    "simulation_schema_version",
+    "simulation_type",
+    "domain",
+    "parameters"
+  ],
+  "properties": {
+    "simulation_schema_version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "simulation_type": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string",
+      "enum": ["mathematics", "mechanics", "optics", "waves", "electricity", "magnetism", "thermodynamics", "modern_physics"]
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "parameters": {
+      "type": "object"
+    },
+    "visualization": {
+      "type": "object"
+    },
+    "educational": {
+      "type": "object"
+    }
+  }
+}

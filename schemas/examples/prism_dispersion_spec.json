@@ -1,0 +1,19 @@
+{
+  "simulation_schema_version": "1.0",
+  "simulation_type": "prism_dispersion",
+  "domain": "optics",
+  "parameters": {
+    "apex_angle": 60.0,
+    "incident_angle": 30.0,
+    "cauchy_b": 1.5,
+    "cauchy_c": 0.004,
+    "wavelengths_nm": [
+      700.0,
+      620.0,
+      580.0,
+      530.0,
+      470.0,
+      420.0
+    ]
+  }
+}
