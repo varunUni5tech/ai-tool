@@ -39,9 +39,25 @@ app.add_middleware(
 
 @app.middleware("http")
 async def log_requests_middleware(request: Request, call_next):
-    """Middleware to log HTTP method, path, client IP, processing duration, and response code."""
+    """Middleware to log HTTP method, path, request body/payload, processing duration, and response code."""
     start_time = time.time()
-    logger.info(f"--> Incoming HTTP Request: {request.method} {request.url.path} from {request.client.host if request.client else 'local'}")
+    client_ip = request.client.host if request.client else 'local'
+    
+    # Read and log request body if present (for POST/PUT/PATCH)
+    body_str = ""
+    if request.method in ["POST", "PUT", "PATCH"]:
+        try:
+            body_bytes = await request.body()
+            body_str = body_bytes.decode("utf-8")
+            # Re-populate request body stream so downstream route handlers can read it
+            async def receive():
+                return {"type": "http.request", "body": body_bytes}
+            request = Request(request.scope, receive=receive)
+        except Exception:
+            body_str = "<failed to parse body>"
+            
+    log_payload_msg = f" | Payload: {body_str}" if body_str else ""
+    logger.info(f"--> Incoming HTTP Request: {request.method} {request.url.path} from {client_ip}{log_payload_msg}")
     
     try:
         response = await call_next(request)
