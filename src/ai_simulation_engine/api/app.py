@@ -94,13 +94,14 @@ def health_check():
     }
 
 
-@router.post("/simulations/generate", response_model=SimulationSpec, status_code=status.HTTP_200_OK)
+@router.post("/simulations/generate", status_code=status.HTTP_200_OK)
 def generate_simulation_spec(req: PromptRequest):
-    """Generate a validated SimulationSpec from a natural language prompt."""
+    """Generate a 3D simulation payload directly from AI natural language prompt."""
     logger.info(f"[AI GENERATE] Prompt received: '{req.prompt}' (provider={req.provider})")
     try:
-        spec = AIService.generate_spec_from_prompt(req.prompt, provider_name=req.provider)
-        logger.info(f"[AI GENERATE SUCCESS] Generated Spec: domain='{spec.domain}', type='{spec.simulation_type}', params={spec.parameters}")
+        provider = AIProviderFactory.get_provider(req.provider)
+        spec = provider.generate_spec(req.prompt)
+        logger.info(f"[AI GENERATE SUCCESS] Generated payload via AI provider '{req.provider}'")
         return spec
     except SimulationEngineError as e:
         logger.error(f"[AI GENERATE ERROR] Failed to generate spec for prompt '{req.prompt}': {str(e)}")
