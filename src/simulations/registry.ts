@@ -74,7 +74,7 @@ class SimulationRegistry {
     // 4. Math Function Plotting
     this.register('function_plot', (spec: SimulationSpecInput) => {
       const p = spec.parameters as any;
-      const expr = p.expression || 'sin(x)';
+      const expr = (p.expression || 'sin(x)').toLowerCase().replace(/\s+/g, '');
       const minX = p.domain?.min ?? 0;
       const maxX = p.domain?.max ?? 6.28;
       const samples = p.domain?.samples ?? 200;
@@ -82,10 +82,34 @@ class SimulationRegistry {
       const points: [number, number, number][] = [];
       for (let i = 0; i <= samples; i++) {
         const x = minX + (i / samples) * (maxX - minX);
-        let y = Math.sin(x);
-        if (expr.includes('cos')) y = Math.cos(x);
-        if (expr.includes('exp')) y = Math.exp(-x / 2) * Math.cos(5 * x);
-        points.push([x - (maxX - minX) / 2, y * 2, 0]);
+        let y = 0;
+        try {
+          // Dynamic safe evaluation for sin(x), cos(x), sin(x)/cos(x), exp(-x), etc.
+          const sin = Math.sin, cos = Math.cos, tan = Math.tan, exp = Math.exp, sqrt = Math.sqrt, log = Math.log, abs = Math.abs, pi = Math.PI;
+          
+          if (expr === 'sin(x)/cos(x)' || expr === 'tan(x)') {
+            y = Math.tan(x);
+          } else if (expr.includes('sin(x)/cos(x)')) {
+            y = Math.sin(x) / (Math.cos(x) || 1e-6);
+          } else {
+            // Replace x with current value and evaluate safely
+            const sanitizedExpr = expr
+              .replace(/sin/g, 'Math.sin')
+              .replace(/cos/g, 'Math.cos')
+              .replace(/tan/g, 'Math.tan')
+              .replace(/exp/g, 'Math.exp')
+              .replace(/sqrt/g, 'Math.sqrt')
+              .replace(/abs/g, 'Math.abs')
+              .replace(/\bx\b/g, `(${x})`);
+            y = Function(`"use strict"; return (${sanitizedExpr})`)();
+          }
+        } catch (e) {
+          y = Math.sin(x);
+        }
+
+        // Clamp y values for vertical asymptotes like tan(x) to prevent graph exploding offscreen
+        const clampedY = Math.max(-10, Math.min(10, Number.isFinite(y) ? y : 0));
+        points.push([x - (maxX - minX) / 2, clampedY, 0]);
       }
 
       return {

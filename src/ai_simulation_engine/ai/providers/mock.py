@@ -39,15 +39,22 @@ class MockAIProvider(AIProvider):
             except Exception:
                 incident_angle = 30.0
 
-        # 1. Math Function Plotting match (e.g. "plot sin(x)", "graph cos(x)")
-        if "plot" in p or "graph" in p or "function" in p or "sin" in p or "cos" in p:
+        # 1. Math Function Plotting match (e.g. "plot sin(x)", "sin(x)/cos(x)", "graph cos(x)")
+        if "plot" in p or "graph" in p or "function" in p or "sin" in p or "cos" in p or "tan" in p or "/" in p:
             expr = "sin(x)"
-            if "cos" in p:
+            if "sin(x)/cos(x)" in p or "sin/cos" in p or "tan" in p:
+                expr = "sin(x)/cos(x)"
+            elif "cos" in p and "sin" not in p:
                 expr = "cos(x)"
             elif "exp" in p:
                 expr = "exp(-x)*cos(2*x)"
-            elif "tan" in p:
-                expr = "tan(x)"
+            
+            # Check for explicit expression match
+            expr_match = re.search(r"(?:plot|graph|expression|of)\s+([a-zA-Z0-9\(\)\/\*\+\-\s]+)", p)
+            if expr_match:
+                extracted = expr_match.group(1).strip()
+                if any(k in extracted for k in ["sin", "cos", "tan", "x", "/"]):
+                    expr = extracted.replace(" ", "")
 
             return {
                 "simulation_schema_version": "1.0",
