@@ -12,6 +12,50 @@ interface PrismSceneProps {
   cameraView: 'default' | 'top' | 'front' | 'side';
 }
 
+const CurvedSpacetimeGrid: React.FC<{ planetPositions: number[][] }> = ({ planetPositions }) => {
+  const geometry = useMemo(() => {
+    const geo = new THREE.PlaneGeometry(36, 36, 70, 70);
+    geo.rotateX(-Math.PI / 2);
+
+    const pos = geo.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const z = pos.getZ(i);
+
+      // Central Sun Gravity Well Funnel
+      const rSun = Math.sqrt(x * x + z * z);
+      let depth = -3.2 / (rSun * 0.8 + 1.2);
+
+      // Orbiting Planet Local Gravity Depressions
+      for (const pPos of planetPositions) {
+        if (!pPos || pPos.length < 2) continue;
+        const dx = x - pPos[0];
+        const dz = z - pPos[1];
+        const rPlanet = Math.sqrt(dx * dx + dz * dz);
+        depth -= 0.9 / (rPlanet * 1.5 + 0.5);
+      }
+
+      pos.setY(i, Math.max(-4.5, depth));
+    }
+    geo.computeVertexNormals();
+    return geo;
+  }, [planetPositions]);
+
+  return (
+    <mesh geometry={geometry} position={[0, -0.2, 0]}>
+      <meshStandardMaterial
+        color="#0284c7"
+        wireframe
+        transparent
+        opacity={0.4}
+        emissive="#0369a1"
+        emissiveIntensity={0.3}
+      />
+    </mesh>
+  );
+};
+
+
 export const PrismScene: React.FC<PrismSceneProps> = ({
   result,
   displayOptions,
@@ -84,6 +128,17 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
   const projectileHead = visibleTrajectoryPoints.length > 0 ? visibleTrajectoryPoints[visibleTrajectoryPoints.length - 1] : null;
 
 
+  const planetPositions = useMemo(() => {
+    return planets.map((p: any, idx: number) => {
+      const pTraj = p.trajectoryPoints || [];
+      if (pTraj.length === 0) return [0, 0, 0];
+      const speedFactor = p.speed_scale || (1.0 / (idx + 1));
+      const progressRatio = (animProgress * speedFactor) % 1.0;
+      const currIdx = Math.min(pTraj.length - 1, Math.floor(pTraj.length * progressRatio));
+      return pTraj[currIdx] || [0, 0, 0];
+    });
+  }, [planets, animProgress]);
+
   return (
     <>
       {/* Lighting */}
@@ -102,67 +157,15 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
         maxDistance={35}
       />
 
-      {/* Grid Plane */}
-      {displayOptions.showGrid && (
-        <Grid
-          position={[0, -2.5, 0]}
-          args={[30, 30]}
-          cellSize={1}
-          cellThickness={1}
-          cellColor="#1e293b"
-          sectionSize={5}
-          sectionThickness={1.5}
-          sectionColor="#0284c7"
-          fadeDistance={35}
-        />
-      )}
-
-      {/* Enhanced Custom Labeled 3D Axes System */}
-      {displayOptions.showAxes && (
-        <group key="custom-axes-system" position={[0, 0, 0]}>
-          {/* X Axis - Red */}
-          <Line points={[[-12, 0, 0], [12, 0, 0]]} color="#ef4444" lineWidth={3} />
-          <Html position={[12.3, 0, 0]}>
-            <span className="px-1.5 py-0.5 bg-red-950/80 text-red-400 text-[11px] font-mono font-bold rounded border border-red-800">
-              +X
-            </span>
-          </Html>
-
-          {/* Y Axis - Green */}
-          <Line points={[[0, -6, 0], [0, 8, 0]]} color="#22c55e" lineWidth={3} />
-          <Html position={[0, 8.3, 0]}>
-            <span className="px-1.5 py-0.5 bg-emerald-950/80 text-emerald-400 text-[11px] font-mono font-bold rounded border border-emerald-800">
-              +Y
-            </span>
-          </Html>
-
-          {/* Z Axis - Blue */}
-          <Line points={[[0, 0, -8], [0, 0, 8]]} color="#3b82f6" lineWidth={3} />
-          <Html position={[0, 0, 8.3]}>
-            <span className="px-1.5 py-0.5 bg-blue-950/80 text-blue-400 text-[11px] font-mono font-bold rounded border border-blue-800">
-              +Z
-            </span>
-          </Html>
-
-          {/* Origin Badge */}
-          <mesh position={[0, 0, 0]}>
-            <sphereGeometry args={[0.08, 16, 16]} />
-            <meshBasicMaterial color="#f59e0b" />
-          </mesh>
-          <Html position={[0.2, -0.3, 0]}>
-            <span className="text-[9px] font-mono text-amber-400/90 font-semibold bg-slate-950/80 px-1 py-0.5 rounded border border-amber-900/50">
-              (0,0,0)
-            </span>
-          </Html>
-        </group>
-      )}
-
       {/* Deep Space Stars Background */}
       <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={1.5} />
 
-      {/* Render 3D Astronomical Solar System / Orbital Motion */}
+      {/* Render 3D Astronomical Solar System & Curved Spacetime Gravity Funnel */}
       {(simulation_type === 'orbital_motion' || centralBody || planets.length > 0) && (
         <group key="orbital-system-group">
+          {/* Einsteinian Curved Spacetime Gravity Grid */}
+          <CurvedSpacetimeGrid planetPositions={planetPositions} />
+
           {/* Glowing Sun Core & Corona */}
           <group position={[0, 0, 0]}>
             {/* Sun Core */}
