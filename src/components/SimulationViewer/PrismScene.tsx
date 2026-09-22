@@ -157,11 +157,28 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
         maxDistance={35}
       />
 
-      {/* Deep Space Stars Background */}
-      <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={1.5} />
+      {/* Standard Grid Plane for non-planetary simulations (Optics / Mechanics / Math) */}
+      {displayOptions.showGrid && simulation_type !== 'orbital_motion' && (
+        <Grid
+          position={[0, -2.5, 0]}
+          args={[30, 30]}
+          cellSize={1}
+          cellThickness={1}
+          cellColor="#1e293b"
+          sectionSize={5}
+          sectionThickness={1.5}
+          sectionColor="#0284c7"
+          fadeDistance={35}
+        />
+      )}
 
-      {/* Render 3D Astronomical Solar System & Curved Spacetime Gravity Funnel */}
-      {(simulation_type === 'orbital_motion' || centralBody || planets.length > 0) && (
+      {/* Deep Space Stars Background (Only for Planetary / Astronomical Simulations) */}
+      {simulation_type === 'orbital_motion' && (
+        <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={1.5} />
+      )}
+
+      {/* Render 3D Astronomical Solar System & Curved Spacetime Gravity Funnel (ONLY for Planetary Simulations) */}
+      {simulation_type === 'orbital_motion' && (
         <group key="orbital-system-group">
           {/* Einsteinian Curved Spacetime Gravity Grid */}
           <CurvedSpacetimeGrid planetPositions={planetPositions} />
