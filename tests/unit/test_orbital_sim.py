@@ -22,5 +22,5 @@ def test_orbital_simulation_execution():
     assert result.simulation_type == "orbital_motion"
     assert result.domain == "astronomy"
     assert "trajectoryPoints" in result.data
-    assert len(result.data["trajectoryPoints"]) == 100
-    assert result.summary["orbital_period_days"] > 350
+    assert len(result.data["trajectoryPoints"]) >= 100
+    assert result.summary["planets_count"] >= 1

@@ -42,7 +42,10 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
 
   if (!result) return null;
 
+  const dataPayload = result?.data || result;
   const { prism, rays, trajectoryPoints, simulation_type } = result;
+  const centralBody = dataPayload?.central_body || (simulation_type === 'orbital_motion' ? { name: 'Sun', color: '#FACC15', radius: 1.2 } : null);
+  const planets = dataPayload?.planets || [];
 
   // Build extruded 3D triangular prism geometry from 2D vertices if prism simulation
   const prismGeometry = useMemo(() => {
@@ -80,13 +83,14 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
 
   const projectileHead = visibleTrajectoryPoints.length > 0 ? visibleTrajectoryPoints[visibleTrajectoryPoints.length - 1] : null;
 
+
   return (
     <>
       {/* Lighting */}
       <ambientLight intensity={0.7} />
       <directionalLight position={[10, 15, 10]} intensity={1.3} castShadow />
       <directionalLight position={[-10, -10, -5]} intensity={0.5} />
-      <pointLight position={[0, 5, 0]} intensity={1.0} color="#e6f2ff" />
+      <pointLight position={[0, 5, 0]} intensity={1.5} color="#FACC15" />
 
       {/* Camera Controls */}
       <OrbitControls
@@ -95,21 +99,21 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
         enableDamping
         dampingFactor={0.05}
         minDistance={2}
-        maxDistance={25}
+        maxDistance={35}
       />
 
       {/* Grid Plane */}
       {displayOptions.showGrid && (
         <Grid
           position={[0, -2.5, 0]}
-          args={[20, 20]}
+          args={[30, 30]}
           cellSize={1}
           cellThickness={1}
           cellColor="#1e293b"
           sectionSize={5}
           sectionThickness={1.5}
           sectionColor="#0284c7"
-          fadeDistance={25}
+          fadeDistance={35}
         />
       )}
 
@@ -117,24 +121,24 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
       {displayOptions.showAxes && (
         <group key="custom-axes-system" position={[0, 0, 0]}>
           {/* X Axis - Red */}
-          <Line points={[[-6, 0, 0], [6, 0, 0]]} color="#ef4444" lineWidth={3} />
-          <Html position={[6.3, 0, 0]}>
+          <Line points={[[-12, 0, 0], [12, 0, 0]]} color="#ef4444" lineWidth={3} />
+          <Html position={[12.3, 0, 0]}>
             <span className="px-1.5 py-0.5 bg-red-950/80 text-red-400 text-[11px] font-mono font-bold rounded border border-red-800">
               +X
             </span>
           </Html>
 
           {/* Y Axis - Green */}
-          <Line points={[[0, -4, 0], [0, 6, 0]]} color="#22c55e" lineWidth={3} />
-          <Html position={[0, 6.3, 0]}>
+          <Line points={[[0, -6, 0], [0, 8, 0]]} color="#22c55e" lineWidth={3} />
+          <Html position={[0, 8.3, 0]}>
             <span className="px-1.5 py-0.5 bg-emerald-950/80 text-emerald-400 text-[11px] font-mono font-bold rounded border border-emerald-800">
               +Y
             </span>
           </Html>
 
           {/* Z Axis - Blue */}
-          <Line points={[[0, 0, -4], [0, 0, 4]]} color="#3b82f6" lineWidth={3} />
-          <Html position={[0, 0, 4.3]}>
+          <Line points={[[0, 0, -8], [0, 0, 8]]} color="#3b82f6" lineWidth={3} />
+          <Html position={[0, 0, 8.3]}>
             <span className="px-1.5 py-0.5 bg-blue-950/80 text-blue-400 text-[11px] font-mono font-bold rounded border border-blue-800">
               +Z
             </span>
@@ -150,23 +154,88 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
               (0,0,0)
             </span>
           </Html>
+        </group>
+      )}
 
-          {/* Math Axis Baseline for Function Plot */}
-          {simulation_type === 'function_plot' && (
-            <group key="function-axis-markers">
-              <Line points={[[-6, 0, 0], [6, 0, 0]]} color="#a855f7" lineWidth={2} dashed dashScale={2} />
-              <Html position={[-6.2, 0.4, 0]}>
-                <span className="px-2 py-0.5 bg-purple-950/90 text-purple-300 text-[10px] font-mono font-bold rounded border border-purple-800 shadow-lg">
-                  Baseline y = 0
-                </span>
-              </Html>
-            </group>
+      {/* Render 3D Astronomical Solar System / Orbital Motion */}
+      {(simulation_type === 'orbital_motion' || centralBody || planets.length > 0) && (
+        <group key="orbital-system-group">
+          {/* Central Sun / Star Sphere */}
+          <mesh position={[0, 0, 0]}>
+            <sphereGeometry args={[centralBody?.radius || 1.2, 32, 32]} />
+            <meshStandardMaterial
+              color="#FACC15"
+              emissive="#F59E0B"
+              emissiveIntensity={1.2}
+              roughness={0.2}
+            />
+          </mesh>
+          {displayOptions.showLabels && (
+            <Html position={[0, (centralBody?.radius || 1.2) + 0.5, 0]}>
+              <div className="px-2.5 py-1 bg-amber-950/90 text-amber-300 text-xs font-mono font-bold rounded-lg border border-amber-500/50 shadow-2xl backdrop-blur-md">
+                ☀️ Sun (Central Body)
+              </div>
+            </Html>
           )}
+
+          {/* Render Multi-Planet Orbits & Animated Position Spheres */}
+          {planets.map((planet: any, pIdx: number) => {
+            const pTraj = planet.trajectoryPoints || [];
+            if (pTraj.length === 0) return null;
+
+            const currIdx = Math.min(
+              pTraj.length - 1,
+              Math.floor(pTraj.length * ((animProgress * planet.speed_scale) % 1.0))
+            );
+            const currentPos = pTraj[currIdx] || pTraj[0];
+            const visiblePath = pTraj.slice(0, Math.max(2, Math.floor(pTraj.length * (animProgress % 1.0))));
+
+            return (
+              <group key={`planet-orbit-${planet.name}-${pIdx}`}>
+                {/* Orbital Path Ring Line */}
+                <Line
+                  points={pTraj}
+                  color={planet.color}
+                  lineWidth={2}
+                  dashed
+                  dashScale={2}
+                />
+
+                {/* Animated Trajectory Tail */}
+                <Line
+                  points={visiblePath}
+                  color={planet.color}
+                  lineWidth={4}
+                />
+
+                {/* Planet Sphere */}
+                <mesh position={currentPos}>
+                  <sphereGeometry args={[planet.radius || 0.4, 24, 24]} />
+                  <meshStandardMaterial
+                    color={planet.color}
+                    emissive={planet.color}
+                    emissiveIntensity={0.6}
+                  />
+                </mesh>
+
+                {/* Planet Label Tooltip */}
+                {displayOptions.showLabels && (
+                  <Html position={[currentPos[0], currentPos[1] + (planet.radius || 0.4) + 0.4, currentPos[2]]}>
+                    <div className="flex items-center space-x-1.5 px-2 py-1 bg-slate-950/90 text-[11px] font-mono rounded border border-slate-700 shadow-xl backdrop-blur-md whitespace-nowrap">
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: planet.color }} />
+                      <span className="font-bold text-white">{planet.name}</span>
+                      <span className="text-cyan-300">({planet.orbit_radius || Math.hypot(currentPos[0], currentPos[1]).toFixed(1)} AU)</span>
+                    </div>
+                  </Html>
+                )}
+              </group>
+            );
+          })}
         </group>
       )}
 
       {/* Render 3D Trajectory Curve for Projectile & Function Plot */}
-      {trajectoryPoints && visibleTrajectoryPoints.length >= 2 && (
+      {simulation_type !== 'orbital_motion' && trajectoryPoints && visibleTrajectoryPoints.length >= 2 && (
         <group key={`trajectory-${simulation_type}-${animProgress}`}>
           <Line
             points={visibleTrajectoryPoints}

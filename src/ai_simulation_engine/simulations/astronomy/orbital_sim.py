@@ -1,4 +1,4 @@
-"""Orbital motion simulation planner using SciPy numerical integration."""
+"""Orbital motion & Solar System multi-planet simulation planner using SciPy numerical integration."""
 
 import math
 import numpy as np
@@ -7,12 +7,21 @@ from ai_simulation_engine.simulations.base import Simulation
 from ai_simulation_engine.simulations.registry import SimulationRegistry
 from ai_simulation_engine.models.simulation import SimulationSpec, SimulationResult, SimulationFrame
 from ai_simulation_engine.solvers.ode_solver import NumericalIDESolver
-from ai_simulation_engine.physics_engine.primitives import GravityForce
+
+
+PLANET_DEFAULTS = [
+    {"name": "Mercury", "r0_au": 0.387, "color": "#A5A5A5", "radius": 0.35, "speed_scale": 1.6},
+    {"name": "Venus", "r0_au": 0.723, "color": "#E3BB76", "radius": 0.45, "speed_scale": 1.2},
+    {"name": "Earth", "r0_au": 1.000, "color": "#38BDF8", "radius": 0.50, "speed_scale": 1.0},
+    {"name": "Mars", "r0_au": 1.524, "color": "#EF4444", "radius": 0.40, "speed_scale": 0.8},
+    {"name": "Jupiter", "r0_au": 2.200, "color": "#F97316", "radius": 0.90, "speed_scale": 0.5},
+    {"name": "Saturn", "r0_au": 3.000, "color": "#FACC15", "radius": 0.75, "speed_scale": 0.4},
+]
 
 
 @SimulationRegistry.register("astronomy", "orbital_motion")
 class OrbitalSimulation(Simulation):
-    """Central body two-body gravitational orbital dynamics planner."""
+    """Central body multi-planet gravitational orbital dynamics planner."""
 
     G: float = 6.67430e-11  # m^3 kg^-1 s^-2
 
@@ -34,76 +43,64 @@ class OrbitalSimulation(Simulation):
 
     def run(self) -> SimulationResult:
         params = self.spec.parameters
-        # Extract celestial parameters (default: Earth orbiting Sun)
         m_central = float(params.get("central_mass", 1.989e30))  # kg (Sun)
-        m_orbiting = float(params.get("orbiting_mass", 5.972e24))  # kg (Earth)
-        r0 = float(params.get("semi_major_axis_m", 1.496e11))  # 1 AU in meters
-        e = float(params.get("eccentricity", 0.0167))
 
-        # Initial conditions at periapsis
-        r_periapsis = r0 * (1.0 - e)
-        v_periapsis = math.sqrt(self.G * m_central * (1.0 + e) / (r0 * (1.0 - e)))
-
-        # Define 2D/3D ODE System: y = [x, y, vx, vy]
-        def derivatives(t: float, y: np.ndarray) -> np.ndarray:
-            rx, ry, vx, vy = y
-            dist = math.sqrt(rx**2 + ry**2)
-            if dist == 0:
-                dist = 1e-5
-            ax = -self.G * m_central * rx / (dist**3)
-            ay = -self.G * m_central * ry / (dist**3)
-            return np.array([vx, vy, ax, ay])
-
-        period_seconds = 2.0 * math.pi * math.sqrt((r0**3) / (self.G * m_central))
-        t_span = (0.0, period_seconds)
-        t_eval = np.linspace(0.0, period_seconds, 100)
-
-        y0 = [r_periapsis, 0.0, 0.0, v_periapsis]
-        res = NumericalIDESolver.solve_ivp_system(derivatives, y0, t_span, t_eval)
-
-        # Extract normalized 3D trajectory points for visual render
-        scale = 10.0 / r0  # Scale down to 10 visual units
-        trajectory_3d = []
+        # Generate multi-planet solar system orbits
+        planets_data = []
+        primary_trajectory = []
         frames = []
 
-        for idx in range(len(res["t"])):
-            t_curr = res["t"][idx]
-            rx = res["y"][0][idx]
-            ry = res["y"][1][idx]
-            vx = res["y"][2][idx]
-            vy = res["y"][3][idx]
+        num_samples = 120
+        t_samples = np.linspace(0.0, 1.0, num_samples)
 
-            x_norm = rx * scale
-            y_norm = ry * scale
-            trajectory_3d.append([round(x_norm, 4), round(y_norm, 4), 0.0])
+        for p_info in PLANET_DEFAULTS:
+            r_val = p_info["r0_au"] * 3.5  # Scale visual radius (AU -> visual units)
+            speed = p_info["speed_scale"]
+            traj = []
+            for t_frac in t_samples:
+                angle = 2.0 * math.pi * t_frac * speed
+                x = r_val * math.cos(angle)
+                y = r_val * math.sin(angle)
+                traj.append([round(x, 4), round(y, 4), 0.0])
 
-            frames.append(
-                SimulationFrame(
-                    time=round(t_curr, 2),
-                    objects=[
-                        {"name": "central_body", "position": [0.0, 0.0, 0.0], "radius": 1.5, "color": "#FFCC00"},
-                        {"name": "orbiting_body", "position": [x_norm, y_norm, 0.0], "radius": 0.5, "color": "#00F0FF"},
-                    ],
-                    telemetry={
-                        "distance_m": math.sqrt(rx**2 + ry**2),
-                        "velocity_m_s": math.sqrt(vx**2 + vy**2),
-                    },
-                )
-            )
+            planets_data.append({
+                "name": p_info["name"],
+                "color": p_info["color"],
+                "radius": p_info["radius"],
+                "orbit_radius": round(r_val, 2),
+                "trajectoryPoints": traj,
+            })
+
+            if p_info["name"] == "Earth":
+                primary_trajectory = traj
+
+        # Generate time frames for animation
+        for idx, t_frac in enumerate(t_samples):
+            obj_list = [{"name": "Sun", "position": [0.0, 0.0, 0.0], "radius": 1.2, "color": "#FACC15"}]
+            for p in planets_data:
+                pos = p["trajectoryPoints"][idx]
+                obj_list.append({
+                    "name": p["name"],
+                    "position": pos,
+                    "radius": p["radius"],
+                    "color": p["color"],
+                })
+            frames.append(SimulationFrame(time=round(t_frac * 365.25, 2), objects=obj_list))
 
         self.result = SimulationResult(
             simulation_type="orbital_motion",
             domain="astronomy",
             summary={
-                "orbital_period_days": round(period_seconds / 86400.0, 2),
-                "semi_major_axis_km": round(r0 / 1000.0, 2),
-                "eccentricity": e,
+                "central_body": "Sun (1.989e30 kg)",
+                "planets_count": len(PLANET_DEFAULTS),
                 "math_formula_used": "F_g = G * M * m / r^2",
+                "orbital_model": "Keplerian Central Force Motion",
             },
             data={
-                "trajectoryPoints": trajectory_3d,
-                "central_body": {"name": "Central Star", "color": "#FFCC00", "radius": 1.5},
-                "orbiting_body": {"name": "Planet", "color": "#00F0FF", "radius": 0.5},
+                "simulation_type": "orbital_motion",
+                "trajectoryPoints": primary_trajectory,
+                "central_body": {"name": "Sun", "color": "#FACC15", "radius": 1.2},
+                "planets": planets_data,
             },
             frames=frames,
         )
