@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useEffect } from 'react';
 import * as THREE from 'three';
-import { OrbitControls, Html, Grid, Line } from '@react-three/drei';
+import { OrbitControls, Html, Grid, Line, Stars } from '@react-three/drei';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { PrismSimulationResult } from '../../simulations/prism/types';
 import { DisplayOptions } from '../Controls/SimulationControls';
@@ -157,23 +157,40 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
         </group>
       )}
 
+      {/* Deep Space Stars Background */}
+      <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={1.5} />
+
       {/* Render 3D Astronomical Solar System / Orbital Motion */}
       {(simulation_type === 'orbital_motion' || centralBody || planets.length > 0) && (
         <group key="orbital-system-group">
-          {/* Central Sun / Star Sphere */}
-          <mesh position={[0, 0, 0]}>
-            <sphereGeometry args={[centralBody?.radius || 1.2, 32, 32]} />
-            <meshStandardMaterial
-              color="#FACC15"
-              emissive="#F59E0B"
-              emissiveIntensity={1.2}
-              roughness={0.2}
-            />
-          </mesh>
+          {/* Glowing Sun Core & Corona */}
+          <group position={[0, 0, 0]}>
+            {/* Sun Core */}
+            <mesh>
+              <sphereGeometry args={[centralBody?.radius || 1.3, 32, 32]} />
+              <meshStandardMaterial
+                color="#FACC15"
+                emissive="#F59E0B"
+                emissiveIntensity={2.0}
+                roughness={0.1}
+              />
+            </mesh>
+            {/* Outer Corona Glow Mesh */}
+            <mesh>
+              <sphereGeometry args={[(centralBody?.radius || 1.3) * 1.25, 32, 32]} />
+              <meshBasicMaterial
+                color="#FEF08A"
+                transparent
+                opacity={0.25}
+                side={THREE.BackSide}
+              />
+            </mesh>
+          </group>
+
           {displayOptions.showLabels && (
-            <Html position={[0, (centralBody?.radius || 1.2) + 0.5, 0]}>
+            <Html position={[0, (centralBody?.radius || 1.3) + 0.6, 0]}>
               <div className="px-2.5 py-1 bg-amber-950/90 text-amber-300 text-xs font-mono font-bold rounded-lg border border-amber-500/50 shadow-2xl backdrop-blur-md">
-                ☀️ Sun (Central Body)
+                ☀️ Sun (Central Star)
               </div>
             </Html>
           )}
@@ -183,12 +200,14 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
             const pTraj = planet.trajectoryPoints || [];
             if (pTraj.length === 0) return null;
 
+            // Compute smooth continuous angle movement
+            const speedFactor = planet.speed_scale || (1.0 / (pIdx + 1));
+            const progressRatio = (animProgress * speedFactor) % 1.0;
             const currIdx = Math.min(
               pTraj.length - 1,
-              Math.floor(pTraj.length * ((animProgress * planet.speed_scale) % 1.0))
+              Math.floor(pTraj.length * progressRatio)
             );
             const currentPos = pTraj[currIdx] || pTraj[0];
-            const visiblePath = pTraj.slice(0, Math.max(2, Math.floor(pTraj.length * (animProgress % 1.0))));
 
             return (
               <group key={`planet-orbit-${planet.name}-${pIdx}`}>
@@ -196,27 +215,37 @@ export const PrismScene: React.FC<PrismSceneProps> = ({
                 <Line
                   points={pTraj}
                   color={planet.color}
-                  lineWidth={2}
+                  lineWidth={1.5}
                   dashed
                   dashScale={2}
                 />
 
-                {/* Animated Trajectory Tail */}
-                <Line
-                  points={visiblePath}
-                  color={planet.color}
-                  lineWidth={4}
-                />
+                {/* Animated Planet Group */}
+                <group position={currentPos}>
+                  {/* Planet Sphere */}
+                  <mesh>
+                    <sphereGeometry args={[planet.radius || 0.4, 24, 24]} />
+                    <meshStandardMaterial
+                      color={planet.color}
+                      emissive={planet.color}
+                      emissiveIntensity={0.5}
+                      roughness={0.4}
+                    />
+                  </mesh>
 
-                {/* Planet Sphere */}
-                <mesh position={currentPos}>
-                  <sphereGeometry args={[planet.radius || 0.4, 24, 24]} />
-                  <meshStandardMaterial
-                    color={planet.color}
-                    emissive={planet.color}
-                    emissiveIntensity={0.6}
-                  />
-                </mesh>
+                  {/* Saturn 3D Rings */}
+                  {planet.name === 'Saturn' && (
+                    <mesh rotation={[Math.PI / 3, 0, 0]}>
+                      <ringGeometry args={[(planet.radius || 0.75) * 1.3, (planet.radius || 0.75) * 2.2, 32]} />
+                      <meshStandardMaterial
+                        color="#FACC15"
+                        side={THREE.DoubleSide}
+                        transparent
+                        opacity={0.7}
+                      />
+                    </mesh>
+                  )}
+                </group>
 
                 {/* Planet Label Tooltip */}
                 {displayOptions.showLabels && (

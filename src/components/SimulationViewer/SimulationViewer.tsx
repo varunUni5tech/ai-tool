@@ -42,7 +42,7 @@ export const SimulationViewer: React.FC<SimulationViewerProps> = ({
       setAnimProgress((prev) => {
         const next = prev + dt * 0.5 * speed;
         if (next >= 1.0) {
-          return 1.0;
+          return next % 1.0;
         }
         return next;
       });
