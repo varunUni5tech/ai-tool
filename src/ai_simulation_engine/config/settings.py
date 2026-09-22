@@ -19,9 +19,11 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     # AI Settings
-    ai_provider: Literal["mock", "openai", "anthropic"] = "mock"
+    ai_provider: Literal["mock", "openai", "anthropic", "ollama"] = "mock"
     openai_api_key: str = ""
     anthropic_api_key: str = ""
+    ollama_host: str = "http://localhost:11434"
+    ollama_model: str = "llama3.1"
 
     # Solver Defaults
     ode_solver_method: str = "RK45"

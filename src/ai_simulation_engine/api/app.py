@@ -14,6 +14,7 @@ from ai_simulation_engine.models.simulation import SimulationSpec, SimulationRes
 from ai_simulation_engine.models.mathematics import FunctionPlotSpec
 from ai_simulation_engine.models.physics import ProjectileSpec
 from ai_simulation_engine.services.ai_service import AIService
+from ai_simulation_engine.ai.providers.factory import AIProviderFactory
 from ai_simulation_engine.services.simulation_service import SimulationService
 from ai_simulation_engine.simulations.registry import SimulationRegistry
 from ai_simulation_engine.visualization.plots_2d.plotly_backend import PlotlyExporter

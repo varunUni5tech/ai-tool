@@ -39,8 +39,40 @@ class MockAIProvider(AIProvider):
             except Exception:
                 incident_angle = 30.0
 
-        # 1. Math Function Plotting match (e.g. "plot sin(x)", "sin(x)/cos(x)", "graph cos(x)")
-        if "plot" in p or "graph" in p or "function" in p or "sin" in p or "cos" in p or "tan" in p or "/" in p:
+        # 1. Projectile Motion match (e.g. "projectile motion 20 m/s at 45 deg")
+        if "projectile" in p or "launch" in p or "trajectory" in p:
+            v0 = 20.0
+            angle = 45.0
+            v_match = re.search(r"(\d+(\.\d+)?)\s*m/s", p)
+            if v_match:
+                v0 = float(v_match.group(1))
+
+            a_match = re.search(r"(\d+(\.\d+)?)\s*(deg|°|degree|at)", p)
+            if a_match:
+                angle = float(a_match.group(1))
+
+            return {
+                "simulation_schema_version": "1.0",
+                "simulation_type": "projectile_motion",
+                "domain": "mechanics",
+                "parameters": {
+                    "initial_velocity": v0,
+                    "launch_angle": angle,
+                    "initial_height": 0.0,
+                    "gravity": 9.81,
+                    "time_step": 0.05,
+                },
+                "visualization": {"type": "trajectory_2d", "animated": True, "title": "Projectile Motion Trajectory"},
+                "educational": {
+                    "subject": "Physics",
+                    "chapter": "Kinematics",
+                    "topic": "2D Motion under Gravity",
+                    "difficulty": "Class 11",
+                },
+            }
+
+        # 2. Math Function Plotting match (e.g. "plot sin(x)", "sin(x)/cos(x)", "graph cos(x)")
+        if "plot" in p or "graph" in p or "function" in p or "sin" in p or "cos" in p or "tan" in p or ("/" in p and "m/s" not in p):
             expr = "sin(x)"
             if "sin(x)/cos(x)" in p or "sin/cos" in p or "tan" in p:
                 expr = "sin(x)/cos(x)"
@@ -69,38 +101,6 @@ class MockAIProvider(AIProvider):
                     "subject": "Mathematics",
                     "chapter": "Calculus & Trigonometry",
                     "topic": "Function Analysis",
-                    "difficulty": "Class 11",
-                },
-            }
-
-        # 2. Projectile Motion match (e.g. "projectile motion 20 m/s at 45 deg")
-        if "projectile" in p or "motion" in p or "launch" in p or "trajectory" in p:
-            v0 = 20.0
-            angle = 45.0
-            v_match = re.search(r"(\d+(\.\d+)?)\s*m/s", p)
-            if v_match:
-                v0 = float(v_match.group(1))
-
-            a_match = re.search(r"(\d+(\.\d+)?)\s*(deg|°|degree|at)", p)
-            if a_match:
-                angle = float(a_match.group(1))
-
-            return {
-                "simulation_schema_version": "1.0",
-                "simulation_type": "projectile_motion",
-                "domain": "mechanics",
-                "parameters": {
-                    "initial_velocity": v0,
-                    "launch_angle": angle,
-                    "initial_height": 0.0,
-                    "gravity": 9.81,
-                    "time_step": 0.05,
-                },
-                "visualization": {"type": "trajectory_2d", "animated": True, "title": "Projectile Motion Trajectory"},
-                "educational": {
-                    "subject": "Physics",
-                    "chapter": "Kinematics",
-                    "topic": "2D Motion under Gravity",
                     "difficulty": "Class 11",
                 },
             }
