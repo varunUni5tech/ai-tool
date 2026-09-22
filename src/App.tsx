@@ -239,42 +239,40 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-white">
-      {/* Premium Glassmorphic Navigation Bar */}
-      <header className="h-16 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-2xl sticky top-0 z-50 flex items-center justify-between px-6 shadow-2xl">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
+      {/* Clean Navigation Bar */}
+      <header className="h-16 border-b border-slate-200 bg-white sticky top-0 z-50 flex items-center justify-between px-6 shadow-sm">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 rounded-xl shadow-lg shadow-cyan-500/20 ring-1 ring-cyan-400/30">
-            <Atom className="w-5 h-5 text-white animate-spin-slow" />
+          <div className="p-2.5 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl shadow-md text-white">
+            <Atom className="w-5 h-5 animate-spin-slow" />
           </div>
           <div>
-            <h1 className="text-base font-extrabold tracking-tight text-white flex items-center space-x-2">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-100 to-cyan-400">
-                Quantum Optics & Motion Lab
-              </span>
-              <span className="px-2 py-0.5 text-[10px] font-mono bg-cyan-950/80 text-cyan-400 border border-cyan-700/60 rounded-full shadow-inner">
-                3D WebGL Engine
+            <h1 className="text-base font-extrabold tracking-tight text-slate-900 flex items-center space-x-2">
+              <span>Universal Physics & Math Platform</span>
+              <span className="px-2 py-0.5 text-[10px] font-mono bg-blue-50 text-blue-700 border border-blue-200 rounded-full">
+                3D Engine
               </span>
             </h1>
-            <p className="text-[11px] text-slate-400 font-mono">
-              SymPy Optics Math • SciPy ODE Solver • Three.js Spectral Renderer
+            <p className="text-[11px] text-slate-500 font-mono">
+              Deterministic Physics • SciPy ODE Solver • Three.js 3D Viewport
             </p>
           </div>
         </div>
 
         {/* Python API Health Status & Mode Toggle */}
         <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-2 bg-slate-900/90 px-3.5 py-1.5 rounded-xl border border-slate-800 text-xs font-mono shadow-inner">
-            <Server className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="text-slate-400">Python API:</span>
+          <div className="flex items-center space-x-2 bg-slate-100 px-3.5 py-1.5 rounded-xl border border-slate-200 text-xs font-mono">
+            <Server className="w-3.5 h-3.5 text-blue-600" />
+            <span className="text-slate-500">Python Backend:</span>
             {isPythonConnected ? (
-              <span className="flex items-center space-x-1 text-emerald-400 font-semibold">
+              <span className="flex items-center space-x-1 text-emerald-600 font-semibold">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Connected</span>
               </span>
             ) : (
-              <span className="flex items-center space-x-1 text-amber-400">
+              <span className="flex items-center space-x-1 text-amber-600">
                 <XCircle className="w-3.5 h-3.5" />
-                <span>Client Engine</span>
+                <span>Offline</span>
               </span>
             )}
           </div>
@@ -283,44 +281,44 @@ export const App: React.FC = () => {
             onClick={() => setUsePythonBackend(!usePythonBackend)}
             className={`flex items-center space-x-2 px-3.5 py-1.5 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
               usePythonBackend && isPythonConnected
-                ? 'bg-gradient-to-r from-cyan-950 to-blue-950 text-cyan-300 border-cyan-600/60 shadow-lg shadow-cyan-950/50'
-                : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700'
+                ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
             }`}
           >
-            <Zap className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Mode: {usePythonBackend && isPythonConnected ? 'Python FastAPI' : 'Client JS Engine'}</span>
+            <Zap className="w-3.5 h-3.5" />
+            <span>Mode: {usePythonBackend && isPythonConnected ? 'FastAPI + Ollama' : 'Client JS'}</span>
           </button>
         </div>
       </header>
 
-      {/* AI Prompt Generator Textarea Section */}
-      <section className="bg-slate-900/60 border-b border-slate-800/80 px-6 py-4 backdrop-blur-xl">
+      {/* AI Prompt Section */}
+      <section className="bg-white border-b border-slate-200 px-6 py-4 shadow-sm">
         <div className="max-w-[1900px] w-full mx-auto flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-xs font-mono text-cyan-400 font-semibold">
-              <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
+            <div className="flex items-center space-x-2 text-xs font-mono text-blue-700 font-semibold">
+              <Sparkles className="w-4 h-4 text-blue-600 animate-pulse" />
               <span>Enter Natural Language Physics Prompt:</span>
             </div>
-            <span className="text-[11px] font-mono text-slate-400">
+            <span className="text-[11px] font-mono text-slate-500">
               Type any simulation description below & click Generate Spec
             </span>
           </div>
 
           <div className="flex flex-col md:flex-row items-stretch gap-3">
-            <div className="flex-1 relative bg-slate-950/90 rounded-xl border border-slate-800 focus-within:border-cyan-500/80 focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all p-3 shadow-inner">
+            <div className="flex-1 relative bg-slate-50 rounded-xl border border-slate-300 focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100 transition-all p-3 shadow-inner">
               <textarea
                 rows={3}
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder="Type your physics or math simulation requirement here... (e.g. 'Show prism dispersion with apex angle 50 and incident angle 40', 'Simulate projectile motion at 30 m/s and 45 degrees angle', or 'Plot cos(x) from 0 to 2pi')"
-                className="w-full bg-transparent border-none text-xs text-slate-100 focus:outline-none font-sans placeholder:text-slate-500 resize-none leading-relaxed"
+                placeholder="Type your physics or math simulation prompt here... (e.g. 'Show Earth orbiting the Sun', 'Show all planets rotating around sun', 'Show projectile motion 25 m/s at 35 deg')"
+                className="w-full bg-transparent border-none text-xs text-slate-900 focus:outline-none font-sans placeholder:text-slate-400 resize-none leading-relaxed font-medium"
               />
             </div>
 
             <button
               onClick={handleGenerateAiPrompt}
               disabled={isGeneratingAi}
-              className="flex items-center justify-center space-x-2 px-6 py-4 text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 via-teal-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:opacity-50 rounded-xl shadow-lg shadow-cyan-500/20 transition-all active:scale-95 shrink-0 cursor-pointer md:w-56"
+              className="flex items-center justify-center space-x-2 px-6 py-4 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-xl shadow-md transition-all active:scale-95 shrink-0 cursor-pointer md:w-56"
             >
               {isGeneratingAi ? (
                 <>
@@ -338,13 +336,13 @@ export const App: React.FC = () => {
         </div>
 
           {/* Quick Prompt Suggestions */}
-          <div className="flex flex-wrap items-center space-x-2 text-[11px] text-slate-400 font-mono">
-            <span className="shrink-0 text-amber-400 font-semibold">Try Prompts:</span>
+          <div className="flex flex-wrap items-center space-x-2 text-[11px] text-slate-600 font-mono mt-3">
+            <span className="shrink-0 text-blue-700 font-semibold">Try Prompts:</span>
             {PROMPT_SUGGESTIONS.map((sug, idx) => (
               <button
                 key={idx}
                 onClick={() => setAiPrompt(sug)}
-                className="px-2.5 py-0.5 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 hover:border-cyan-700/50 transition-all cursor-pointer truncate max-w-[220px]"
+                className="px-2.5 py-1 bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 rounded-lg border border-slate-200 hover:border-blue-300 transition-all cursor-pointer font-medium"
                 title={sug}
               >
                 {sug}
@@ -354,8 +352,8 @@ export const App: React.FC = () => {
 
         {/* API Notification Banner */}
         {apiStatusMessage && (
-          <div className="max-w-[1900px] mx-auto mt-2 text-xs font-mono text-cyan-300 bg-cyan-950/60 p-2 rounded-xl border border-cyan-700/50 flex items-center space-x-2 animate-pulse shadow-lg">
-            <Zap className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="max-w-[1900px] mx-auto mt-2 text-xs font-mono text-blue-800 bg-blue-50 p-2.5 rounded-xl border border-blue-200 flex items-center space-x-2 shadow-sm">
+            <Zap className="w-3.5 h-3.5 text-blue-600" />
             <span>{apiStatusMessage}</span>
           </div>
         )}
@@ -399,7 +397,7 @@ export const App: React.FC = () => {
         {/* Right Column: 3D WebGL Canvas & Output Results Panels */}
         <div className="lg:col-span-7 flex flex-col space-y-4">
           {/* Main 3D Viewport */}
-          <div className="h-[520px] rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
+          <div className="h-[520px] rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-white">
             <SimulationViewer
               result={simResult}
               displayOptions={displayOptions}
@@ -419,7 +417,7 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/60 bg-slate-950 py-3.5 px-6 text-center text-xs text-slate-500 font-mono">
+      <footer className="border-t border-slate-200 bg-white py-3.5 px-6 text-center text-xs text-slate-500 font-mono">
         AI Mathematical & Physics 3D Simulation Platform • FastAPI Server Running @ http://localhost:8000
       </footer>
     </div>

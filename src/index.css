@@ -2,14 +2,14 @@
 
 :root {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #030712;
-  color: #f3f4f6;
+  background-color: #f8fafc;
+  color: #0f172a;
   overflow-x: hidden;
 }
 

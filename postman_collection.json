@@ -1,27 +1,33 @@
 {
   "info": {
-    "_postman_id": "a1b2c3d4-5678-90ef-1234-567890abcdef",
-    "name": "AI Math & Physics Simulation Engine API",
-    "description": "Postman Collection for AI Mathematical & Physics Simulation Engine",
+    "_postman_id": "a9b8c7d6-e5f4-4321-9876-543210fedcba",
+    "name": "Universal AI Physics & Math Simulation Engine API",
+    "description": "Postman Collection for AI Simulation Engine API endpoints including JSON specs, interactive 2D/3D Plotly HTML outputs, and Ollama AI orchestration.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    }
+  ],
   "item": [
     {
-      "name": "1. Health Check",
+      "name": "Health Check",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8000/api/v1/health",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8000",
-          "path": ["api", "v1", "health"]
-        }
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Check if Python FastAPI backend is healthy and view registered physics engine modules."
       }
     },
     {
-      "name": "2. Generate Spec from Prompt",
+      "name": "1. Universal End-to-End Simulation (NL -> Spec -> Physics)",
       "request": {
         "method": "POST",
         "header": [
@@ -32,19 +38,18 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"prompt\": \"Show dispersion of white light through a prism\",\n  \"provider\": \"mock\"\n}"
+          "raw": "{\n  \"prompt\": \"Show Earth orbiting the Sun\",\n  \"provider\": \"ollama\"\n}"
         },
         "url": {
-          "raw": "http://localhost:8000/api/v1/simulations/generate",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8000",
-          "path": ["api", "v1", "simulations", "generate"]
-        }
+          "raw": "{{baseUrl}}/simulate",
+          "host": ["{{baseUrl}}"],
+          "path": ["simulate"]
+        },
+        "description": "Universal Endpoint: Takes natural language prompt, runs local Ollama repair loop, executes physics engine, and returns 3D visualization objects."
       }
     },
     {
-      "name": "3. 3D Interactive Prism Dispersion Web HTML Chart",
+      "name": "2. Generate Spec from Prompt Only (JSON)",
       "request": {
         "method": "POST",
         "header": [
@@ -55,19 +60,18 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"simulation_schema_version\": \"1.0\",\n  \"simulation_type\": \"prism_dispersion\",\n  \"domain\": \"optics\",\n  \"parameters\": {\n    \"apex_angle\": 60.0,\n    \"incident_angle\": 30.0,\n    \"cauchy_b\": 1.5,\n    \"cauchy_c\": 0.004,\n    \"wavelengths_nm\": [700.0, 620.0, 580.0, 530.0, 470.0, 420.0]\n  }\n}"
+          "raw": "{\n  \"prompt\": \"Show prism dispersion with apex angle 60 and incident angle 30\",\n  \"provider\": \"ollama\"\n}"
         },
         "url": {
-          "raw": "http://localhost:8000/api/v1/simulations/run/html3d",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8000",
-          "path": ["api", "v1", "simulations", "run", "html3d"]
-        }
+          "raw": "{{baseUrl}}/simulations/generate",
+          "host": ["{{baseUrl}}"],
+          "path": ["simulations", "generate"]
+        },
+        "description": "Generates a structured simulation JSON spec directly from natural language using Ollama."
       }
     },
     {
-      "name": "4. Generate & Run directly to 3D Interactive Web HTML Chart",
+      "name": "3. Full Pipeline 3D HTML Output (Prompt -> 3D Plotly Web)",
       "request": {
         "method": "POST",
         "header": [
@@ -78,15 +82,102 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"prompt\": \"Show dispersion of white light through a prism\",\n  \"provider\": \"mock\"\n}"
+          "raw": "{\n  \"prompt\": \"Show prism dispersion with white light\",\n  \"provider\": \"ollama\"\n}"
         },
         "url": {
-          "raw": "http://localhost:8000/api/v1/simulations/generate-and-run/html3d",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "8000",
-          "path": ["api", "v1", "simulations", "generate-and-run", "html3d"]
-        }
+          "raw": "{{baseUrl}}/simulations/generate-and-run/html3d",
+          "host": ["{{baseUrl}}"],
+          "path": ["simulations", "generate-and-run", "html3d"]
+        },
+        "description": "Executes full pipeline and returns standalone interactive 3D Plotly HTML webpage ready for WebViews/iframes."
+      }
+    },
+    {
+      "name": "4. Full Pipeline 2D HTML Output (Prompt -> 2D Plotly Web)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"prompt\": \"Show projectile motion with velocity 20 m/s at 45 degrees\",\n  \"provider\": \"ollama\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/simulations/generate-and-run/html",
+          "host": ["{{baseUrl}}"],
+          "path": ["simulations", "generate-and-run", "html"]
+        },
+        "description": "Executes full pipeline and returns interactive 2D Plotly HTML chart."
+      }
+    },
+    {
+      "name": "5. Run Simulation Engine (JSON Spec -> Computed Result)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"simulation_schema_version\": \"1.0\",\n  \"simulation_type\": \"projectile_motion\",\n  \"domain\": \"mechanics\",\n  \"parameters\": {\n    \"initial_velocity\": 25.0,\n    \"launch_angle\": 45.0,\n    \"initial_height\": 0.0,\n    \"gravity\": 9.81,\n    \"time_step\": 0.05\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/simulations/run",
+          "host": ["{{baseUrl}}"],
+          "path": ["simulations", "run"]
+        },
+        "description": "Executes deterministic Python physics computation engine on provided spec and returns metric calculations."
+      }
+    },
+    {
+      "name": "6. Run Projectile Express Endpoint",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"initial_velocity\": 30.0,\n  \"launch_angle\": 60.0,\n  \"initial_height\": 0.0,\n  \"gravity\": 9.81\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/physics/simulate",
+          "host": ["{{baseUrl}}"],
+          "path": ["physics", "simulate"]
+        },
+        "description": "Direct kinematic solver endpoint for projectile motion."
+      }
+    },
+    {
+      "name": "7. Express Math Graph Endpoint",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"expression\": \"sin(x) * exp(-0.2*x)\",\n  \"domain_min\": 0.0,\n  \"domain_max\": 10.0,\n  \"samples\": 200\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/math/graph",
+          "host": ["{{baseUrl}}"],
+          "path": ["math", "graph"]
+        },
+        "description": "Fast express math plotting endpoint."
       }
     }
   ]

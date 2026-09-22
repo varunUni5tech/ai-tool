@@ -56,12 +56,12 @@ export const SimulationViewer: React.FC<SimulationViewerProps> = ({
   }, [isPlaying, speed]);
 
   return (
-    <div className="relative w-full h-full min-h-[400px] bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-2xl flex flex-col">
+    <div className="relative w-full h-full min-h-[400px] bg-white border border-slate-200 rounded-xl overflow-hidden shadow-md flex flex-col">
       {/* Viewport Top Header Bar */}
-      <div className="absolute top-3 left-3 z-10 flex items-center space-x-2 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 backdrop-blur-md">
-        <Box className="w-4 h-4 text-cyan-400 animate-pulse" />
-        <span className="text-xs font-mono font-bold text-slate-200">
-          3D WebGL Scene • Three.js / R3F
+      <div className="absolute top-3 left-3 z-10 flex items-center space-x-2 bg-white/90 px-3 py-1.5 rounded-lg border border-slate-200 backdrop-blur-md shadow-sm">
+        <Box className="w-4 h-4 text-blue-600 animate-pulse" />
+        <span className="text-xs font-mono font-bold text-slate-800">
+          3D WebGL Viewport • Three.js
         </span>
       </div>
 
@@ -72,7 +72,7 @@ export const SimulationViewer: React.FC<SimulationViewerProps> = ({
           gl={{ antialias: true, alpha: false }}
           shadows
         >
-          <color attach="background" args={['#090b10']} />
+          <color attach="background" args={['#0f172a']} />
           <PrismScene
             result={result}
             displayOptions={displayOptions}

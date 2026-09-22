@@ -57,18 +57,17 @@ class Plotly3DExporter:
                 lighting=dict(ambient=0.5, diffuse=0.8, specular=0.5, roughness=0.1),
             ))
 
-            # Incident White Light Ray (3D)
+            # Incident White Light Ray (3D) - slate-800 for visibility on light theme
             first_pts = geom.get("ray_points", [])
             if len(first_pts) >= 2:
                 p0, p1 = first_pts[0], first_pts[1]
-                # Draw white incident beam bundle across Z height [-0.5, 0, 0.5]
                 for z_off in [-0.4, 0.0, 0.4]:
                     fig.add_trace(go.Scatter3d(
                         x=[p0[0], p1[0]],
                         y=[p0[1], p1[1]],
                         z=[z_off, z_off],
                         mode="lines",
-                        line=dict(color="#FFFFFF", width=6),
+                        line=dict(color="#334155", width=6),
                         name="Incident White Light",
                         showlegend=(z_off == 0.0)
                     ))
@@ -83,7 +82,6 @@ class Plotly3DExporter:
                 if len(pts) >= 4:
                     p1, p2, p3 = pts[1], pts[2], pts[3]
 
-                    # 3D Beam fan at 3 Z height levels for rich volumetric depth
                     for z_off in [-0.4, 0.0, 0.4]:
                         # Internal refracted ray
                         fig.add_trace(go.Scatter3d(
@@ -107,24 +105,24 @@ class Plotly3DExporter:
                             showlegend=(z_off == 0.0)
                         ))
 
-            # 3D Layout configuration (Dark sci-fi aesthetic)
+            # 3D Layout configuration (Clean Light theme aesthetic)
             fig.update_layout(
                 title=dict(
                     text="3D Interactive Prism White Light Dispersion",
-                    font=dict(size=20, color="#FFFFFF")
+                    font=dict(size=18, color="#0f172a")
                 ),
                 scene=dict(
-                    xaxis=dict(title="X (Distance)", backgroundcolor="#111111", gridcolor="#333333", showbackground=True),
-                    yaxis=dict(title="Y (Height)", backgroundcolor="#111111", gridcolor="#333333", showbackground=True),
-                    zaxis=dict(title="Z (Prism Width)", backgroundcolor="#111111", gridcolor="#333333", showbackground=True),
+                    xaxis=dict(title="X (Distance)", backgroundcolor="#f8fafc", gridcolor="#e2e8f0", showbackground=True),
+                    yaxis=dict(title="Y (Height)", backgroundcolor="#f8fafc", gridcolor="#e2e8f0", showbackground=True),
+                    zaxis=dict(title="Z (Prism Width)", backgroundcolor="#f8fafc", gridcolor="#e2e8f0", showbackground=True),
                     aspectmode="data",
                     camera=dict(
-                        eye=dict(x=1.8, y=-1.8, z=1.2)
+                        eye=dict(x=1.5, y=-1.5, z=1.2)
                     )
                 ),
-                paper_bgcolor="#0d0f12",
-                plot_bgcolor="#0d0f12",
-                legend=dict(font=dict(color="#FFFFFF"), bgcolor="rgba(0,0,0,0.5)"),
+                paper_bgcolor="#ffffff",
+                plot_bgcolor="#ffffff",
+                legend=dict(font=dict(color="#0f172a"), bgcolor="rgba(255,255,255,0.9)", bordercolor="#cbd5e1", borderwidth=1),
             )
 
             return fig.to_html(full_html=True, include_plotlyjs="cdn")

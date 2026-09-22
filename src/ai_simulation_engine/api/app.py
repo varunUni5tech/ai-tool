@@ -208,29 +208,73 @@ def run_simulation_html3d(spec: SimulationSpec):
 @router.post("/simulations/generate-and-run/html", response_class=HTMLResponse, status_code=status.HTTP_200_OK)
 def generate_and_run_html(req: PromptRequest):
     """Full pipeline: NL Prompt -> Spec -> Execute -> Interactive Plotly HTML web visualization."""
-    logger.info(f"[PIPELINE 2D] Generate & Run 2D HTML for prompt: '{req.prompt}'")
+    from ai_simulation_engine.ai.repair_loop import validate_and_repair_spec
+
+    logger.info(f"[PIPELINE 2D] Generate & Run 2D HTML for prompt: '{req.prompt}' (provider={req.provider})")
     try:
-        spec = AIService.generate_spec_from_prompt(req.prompt, provider_name=req.provider)
-        result = SimulationService.execute_simulation(spec)
-        html_content = PlotlyExporter.render_to_html(result)
-        logger.info(f"[PIPELINE 2D SUCCESS] Rendered 2D HTML visualization for prompt '{req.prompt}'")
+        provider = AIProviderFactory.get_provider(req.provider)
+        spec_v2, _ = validate_and_repair_spec(provider, req.prompt)
+
+        from ai_simulation_engine.simulations.capabilities import CapabilityRegistry
+        cap = CapabilityRegistry.get(spec_v2.simulation.type)
+        params = dict(cap.optional_parameters) if cap else {}
+        params.update(spec_v2.parameters)
+        if spec_v2.simulation.type == "function_plot" and "expression" not in params:
+            params["expression"] = "sin(x)"
+
+        engine_spec = SimulationSpec(
+            simulation_type=spec_v2.simulation.type,
+            domain=spec_v2.simulation.domain,
+            parameters=params,
+        )
+
+        result = SimulationService.execute_simulation(engine_spec)
+
+        # Route rendering dynamically based on computed simulation type
+        if result.simulation_type in ["prism_dispersion", "optical_prism"]:
+            html_content = Plotly3DExporter.render_prism_3d_html(result)
+        else:
+            html_content = PlotlyExporter.render_to_html(result)
+
+        logger.info(f"[PIPELINE SUCCESS] Rendered HTML visualization for prompt '{req.prompt}' ({len(html_content)} bytes)")
         return HTMLResponse(content=html_content)
-    except SimulationEngineError as e:
-        logger.error(f"[PIPELINE 2D ERROR] Pipeline failed for prompt '{req.prompt}': {str(e)}")
+    except Exception as e:
+        logger.error(f"[PIPELINE ERROR] Pipeline failed for prompt '{req.prompt}': {str(e)}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post("/simulations/generate-and-run/html3d", response_class=HTMLResponse, status_code=status.HTTP_200_OK)
 def generate_and_run_html3d(req: PromptRequest):
     """Full pipeline: NL Prompt -> Spec -> Execute -> Interactive 3D Plotly HTML web visualization."""
-    logger.info(f"[PIPELINE 3D] Generate & Run 3D HTML for prompt: '{req.prompt}'")
+    from ai_simulation_engine.ai.repair_loop import validate_and_repair_spec
+
+    logger.info(f"[PIPELINE 3D] Generate & Run 3D HTML for prompt: '{req.prompt}' (provider={req.provider})")
     try:
-        spec = AIService.generate_spec_from_prompt(req.prompt, provider_name=req.provider)
-        result = SimulationService.execute_simulation(spec)
-        html_content = Plotly3DExporter.render_prism_3d_html(result)
-        logger.info(f"[PIPELINE 3D SUCCESS] Rendered 3D HTML visualization for prompt '{req.prompt}'")
+        provider = AIProviderFactory.get_provider(req.provider)
+        spec_v2, _ = validate_and_repair_spec(provider, req.prompt)
+
+        from ai_simulation_engine.simulations.capabilities import CapabilityRegistry
+        cap = CapabilityRegistry.get(spec_v2.simulation.type)
+        params = dict(cap.optional_parameters) if cap else {}
+        params.update(spec_v2.parameters)
+
+        engine_spec = SimulationSpec(
+            simulation_type=spec_v2.simulation.type,
+            domain=spec_v2.simulation.domain,
+            parameters=params,
+        )
+
+        result = SimulationService.execute_simulation(engine_spec)
+
+        # Dynamic visualization exporter routing
+        if result.simulation_type in ["prism_dispersion", "optical_prism"]:
+            html_content = Plotly3DExporter.render_prism_3d_html(result)
+        else:
+            html_content = PlotlyExporter.render_to_html(result)
+
+        logger.info(f"[PIPELINE 3D SUCCESS] Rendered HTML visualization for prompt '{req.prompt}' (type={result.simulation_type})")
         return HTMLResponse(content=html_content)
-    except SimulationEngineError as e:
+    except Exception as e:
         logger.error(f"[PIPELINE 3D ERROR] Pipeline failed for prompt '{req.prompt}': {str(e)}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 

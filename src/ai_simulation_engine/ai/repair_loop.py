@@ -52,7 +52,7 @@ def validate_and_repair_spec(
                 raise ValueError(f"Unexpected spec output type: {type(raw_spec)}")
 
             # Attempt schema validation (v2.0 or legacy v1.0 migration)
-            if "schema_version" in spec_dict and spec_dict["schema_version"] == "2.0":
+            if "schema_version" in spec_dict and spec_dict["schema_version"] == "2.0" and "simulation" in spec_dict:
                 spec = UniversalSimulationSpec.model_validate(spec_dict)
             else:
                 spec = UniversalSimulationSpec.from_v1_dict(spec_dict)

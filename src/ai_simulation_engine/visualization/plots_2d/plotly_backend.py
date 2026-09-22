@@ -24,7 +24,7 @@ class PlotlyExporter:
                     title=f"Function Plot: y = {expr}",
                     xaxis_title="x",
                     yaxis_title="y",
-                    template="plotly_dark",
+                    template="plotly_white",
                 )
 
             elif sim_type == "projectile_motion":
@@ -32,7 +32,7 @@ class PlotlyExporter:
                 y = result.data.get("y", [])
                 fig.add_trace(go.Scatter(
                     x=x, y=y, mode="lines+markers", name="Trajectory",
-                    line=dict(color="#e377c2", width=3),
+                    line=dict(color="#2563eb", width=3),
                     marker=dict(size=4),
                     fill="tozeroy",
                 ))
@@ -40,7 +40,7 @@ class PlotlyExporter:
                     title=f"Projectile Motion Trajectory (v0={result.summary.get('initial_velocity')} m/s, {result.summary.get('launch_angle_deg')}°)",
                     xaxis_title="Horizontal Distance x (m)",
                     yaxis_title="Vertical Height y (m)",
-                    template="plotly_dark",
+                    template="plotly_white",
                 )
 
             elif sim_type == "optical_prism":
@@ -56,12 +56,12 @@ class PlotlyExporter:
                 if len(ray_pts) >= 4:
                     px = [p[0] for p in ray_pts]
                     py = [p[1] for p in ray_pts]
-                    fig.add_trace(go.Scatter(x=px, y=py, mode="lines+markers", line=dict(color="#ff7f00", width=3), name="Light Ray"))
+                    fig.add_trace(go.Scatter(x=px, y=py, mode="lines+markers", line=dict(color="#ea580c", width=3), name="Light Ray"))
 
                 fig.update_layout(
                     title=f"Prism Refraction (n={result.summary.get('refractive_index')})",
                     xaxis_title="x", yaxis_title="y",
-                    template="plotly_dark",
+                    template="plotly_white",
                     yaxis=dict(scaleanchor="x", scaleratio=1),
                 )
 
@@ -87,7 +87,7 @@ class PlotlyExporter:
                 fig.update_layout(
                     title="Prism White Light Dispersion Spectrum",
                     xaxis_title="x", yaxis_title="y",
-                    template="plotly_dark",
+                    template="plotly_white",
                     yaxis=dict(scaleanchor="x", scaleratio=1),
                 )
 
