@@ -227,6 +227,9 @@ Do not include commentary outside the JSON.
 """
 
 
+from ai_simulation_engine.ai.prompts.system_prompt import get_system_prompt
+
+
 class OllamaProvider(AIProvider):
     """Ollama local AI specification & 3D dataset generator provider."""
 
@@ -255,7 +258,7 @@ class OllamaProvider(AIProvider):
         url = f"{self.host_url}/api/generate"
         payload = {
             "model": target_model,
-            "system": SYSTEM_PROMPT,
+            "system": get_system_prompt(),
             "prompt": f"Generate complete 3D simulation data for: {prompt}",
             "format": "json",
             "stream": False,

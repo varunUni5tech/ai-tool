@@ -122,11 +122,19 @@ def simulate_end_to_end(req: PromptRequest):
         provider = AIProviderFactory.get_provider(req.provider)
         spec_v2, repair_count = validate_and_repair_spec(provider, req.prompt)
 
+        # Merge capability default parameters if missing
+        from ai_simulation_engine.simulations.capabilities import CapabilityRegistry
+        cap = CapabilityRegistry.get(spec_v2.simulation.type)
+        params = dict(cap.optional_parameters) if cap else {}
+        params.update(spec_v2.parameters)
+        if spec_v2.simulation.type == "function_plot" and "expression" not in params:
+            params["expression"] = "sin(x)"
+
         # Map Universal Spec v2.0 to SimulationSpec for deterministic engine execution
         engine_spec = SimulationSpec(
             simulation_type=spec_v2.simulation.type,
             domain=spec_v2.simulation.domain,
-            parameters=spec_v2.parameters,
+            parameters=params,
         )
 
         result = SimulationService.execute_simulation(engine_spec)

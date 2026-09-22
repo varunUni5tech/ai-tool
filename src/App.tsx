@@ -163,15 +163,20 @@ export const App: React.FC = () => {
   const handleGenerateAiPrompt = async () => {
     if (!aiPrompt.trim()) return;
     setIsGeneratingAi(true);
-    setApiStatusMessage('Sending prompt to Python AI Orchestration Layer...');
+    setApiStatusMessage('Sending prompt to Python AI Orchestration & Repair Layer...');
 
     try {
       if (isPythonConnected) {
-        const generatedSpec = await ApiService.generateSpecFromPrompt(aiPrompt);
-        const formattedJson = JSON.stringify(generatedSpec, null, 2);
+        const fullResponse = await ApiService.simulateEndToEnd(aiPrompt, 'ollama');
+        const specObj = fullResponse.simulation_spec || fullResponse;
+        const formattedJson = JSON.stringify(specObj, null, 2);
         setJsonText(formattedJson);
-        loadSimulation(generatedSpec);
-        setApiStatusMessage('✨ AI Spec Generated & Loaded successfully from Python Backend!');
+        if (fullResponse.result) {
+          setSimResult(fullResponse.result);
+        } else {
+          loadSimulation(specObj);
+        }
+        setApiStatusMessage(`✨ Universal AI Spec 2.0 Generated (Repairs: ${fullResponse.repair_attempts ?? 0})`);
       } else {
         // Fallback parser if Python API is offline
         const spec = JSON.parse(MOCK_SPECS['prism_dispersion']);

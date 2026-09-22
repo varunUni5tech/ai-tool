@@ -61,4 +61,23 @@ export class ApiService {
 
     return await res.json();
   }
+
+  /**
+   * Universal Pipeline: Natural Language Prompt -> LLM Repair Loop -> Universal Spec 2.0 -> Physics Result
+   */
+  static async simulateEndToEnd(prompt: string, provider: string = 'ollama'): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/simulate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, provider }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || 'Universal simulation failed.');
+    }
+
+    return await res.json();
+  }
 }
+
