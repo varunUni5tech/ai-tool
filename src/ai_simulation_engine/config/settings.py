@@ -20,10 +20,16 @@ class Settings(BaseSettings):
 
     # AI Settings
     ai_provider: Literal["mock", "openai", "anthropic", "ollama"] = "mock"
+    llm_provider: str = ""  # If set, overrides ai_provider for LLM_PROVIDER env var
     openai_api_key: str = ""
     anthropic_api_key: str = ""
     ollama_host: str = "http://localhost:11434"
-    ollama_model: str = "llama3.1"
+    ollama_model: str = "qwen3"
+    simulation_max_repair_attempts: int = 3
+
+    @property
+    def effective_ai_provider(self) -> str:
+        return (self.llm_provider or self.ai_provider).lower()
 
     # Solver Defaults
     ode_solver_method: str = "RK45"

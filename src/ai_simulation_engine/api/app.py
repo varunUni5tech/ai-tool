@@ -109,6 +109,46 @@ def generate_simulation_spec(req: PromptRequest):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
+@router.post("/simulate", status_code=status.HTTP_200_OK)
+def simulate_end_to_end(req: PromptRequest):
+    """Universal pipeline: NL Prompt -> LLM Repair Loop -> Validated Universal Spec 2.0 -> Physics Engine -> Viz Router."""
+    from ai_simulation_engine.ai.repair_loop import validate_and_repair_spec
+    from ai_simulation_engine.visualization.router import VisualizationRouter
+
+    req_id = str(uuid.uuid4())
+    logger.info(f"[SIMULATE {req_id}] Universal request prompt: '{req.prompt}' (provider={req.provider})")
+    start_t = time.time()
+    try:
+        provider = AIProviderFactory.get_provider(req.provider)
+        spec_v2, repair_count = validate_and_repair_spec(provider, req.prompt)
+
+        # Map Universal Spec v2.0 to SimulationSpec for deterministic engine execution
+        engine_spec = SimulationSpec(
+            simulation_type=spec_v2.simulation.type,
+            domain=spec_v2.simulation.domain,
+            parameters=spec_v2.parameters,
+        )
+
+        result = SimulationService.execute_simulation(engine_spec)
+        viz_payload = VisualizationRouter.render_payload(result, spec_v2)
+        elapsed_ms = (time.time() - start_t) * 1000
+
+        logger.info(
+            f"[SIMULATE SUCCESS {req_id}] Type='{spec_v2.simulation.type}', repairs={repair_count}, time={elapsed_ms:.2f}ms"
+        )
+        return {
+            "request_id": req_id,
+            "repair_attempts": repair_count,
+            "simulation_spec": spec_v2.model_dump(),
+            "result": result.model_dump(),
+            "visualization": viz_payload,
+        }
+    except Exception as e:
+        logger.error(f"[SIMULATE ERROR {req_id}] Universal simulation failed for '{req.prompt}': {str(e)}")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+
 @router.post("/simulations/run", response_model=SimulationResult, status_code=status.HTTP_200_OK)
 def run_simulation(spec: SimulationSpec):
     """Execute a simulation from a validated spec and return computed state & results."""
